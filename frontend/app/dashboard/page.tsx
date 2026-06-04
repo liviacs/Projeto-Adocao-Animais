@@ -3,8 +3,8 @@
 import { PawPrint, Heart, Clock, Users } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
 import { buscarEstatisticas, buscarAnimais, buscarSolicitacoes } from "@/lib/api"
-import { Layout, BarraSuperior } from "@/components/layout"
-import { CardEstatistica, Card, Etiqueta, Carregando, Vazio } from "@/components/ui"
+import { Layout, BarraSuperior } from "@/components/animais/layout"
+import { CardEstatistica, Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"
 import { formatarDataHora } from "@/lib/utils"
 
 export default function PaginaDashboard() {

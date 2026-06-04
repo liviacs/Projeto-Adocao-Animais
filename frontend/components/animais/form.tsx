@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, Upload } from "lucide-react"
 import { criarAnimal, atualizarAnimal, enviarFotoAnimal } from "@/lib/api"
 import type { Animal } from "@/tipos"
-import { Layout, BarraSuperior } from "@/components/layout"
-import { Botao, Card, Campo, Seletor, AreaTexto } from "@/components/ui"
+import { Layout, BarraSuperior } from "@/components/animais/layout"
+import { Botao, Card, Campo, Seletor, AreaTexto } from "@/components/animais/ui"
 
 interface FormAnimalProps {
   animal?: Animal
