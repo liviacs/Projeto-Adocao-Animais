@@ -1,7 +1,7 @@
 licitacoes, aprovarSolicitacao, rejeitarSolicitacao } from "@/lib/api"
 import type { StatusSolicitacao } from "@/tipos"
-import { Layout, BarraSuperior } from "@/components/layout"
-import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/ui"
+import { Layout, BarraSuperior } from "@/components/animais/layout"
+import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"
 import { formatarDataHora } from "@/lib/utils"
 
 const opcoesStatus = [
