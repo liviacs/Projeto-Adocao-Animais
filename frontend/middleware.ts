@@ -4,10 +4,10 @@ import { getToken } from "next-auth/jwt"
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
-  const isLoginPage = request.nextUrl.pathname.startsWith("/auth/login")
+  const isLoginPage = request.nextUrl.pathname.startsWith("/auth")
 
   if (!token && !isLoginPage) {
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+    return NextResponse.redirect(new URL("/auth", request.url))
   }
 
   return NextResponse.next()
