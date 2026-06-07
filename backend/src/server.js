@@ -31,7 +31,7 @@ app.use(rateLimit({
 
 // CORS configurado para o frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3006',
+  origin: 'http://localhost:3000',
   credentials: true,
 }));
 
@@ -42,7 +42,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Sessões HTTP
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'chave-sessao-padrao',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -71,5 +71,5 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ erro: 'Erro interno do servidor' });
 });
 
-const PORT = process.env.PORT || 3005;
+const PORT = 3005;
 app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));
