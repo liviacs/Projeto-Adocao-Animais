@@ -3,9 +3,13 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
 
+function autenticado(req, res, next) {
+  if (req.session && req.session.usuario) return next();
+  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
+}
 
 //Todos os usuários
-router.get('/', async (req, res) => {
+router.get('/', autenticado, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT 
@@ -32,7 +36,7 @@ router.get('/', async (req, res) => {
 });
 
 //Usuário específico
-router.get('/:id', async (req, res) => {
+router.get('/:id', autenticado, async (req, res) => {
   try {
     const id = req.params.id;
     const result = await db.query(`
@@ -61,7 +65,7 @@ router.get('/:id', async (req, res) => {
 });
 
 //Criar usuário
-router.post('/', async (req, res) => {
+router.post('/', autenticado, async (req, res) => {
   try {
     const { nome, email, senha, telefone, tipo } = req.body;
     if (!nome || !email || !senha) {
@@ -91,7 +95,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', autenticado, async (req, res) => {
   try {
     const id = req.params.id;
     const { nome, email, senha, telefone, tipo } = req.body;

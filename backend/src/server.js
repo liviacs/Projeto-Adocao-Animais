@@ -1,11 +1,11 @@
 // server.js
 require('dotenv').config();
 
-const express = require('express');
-const path    = require('path');
-const cors    = require('cors');
-const helmet  = require('helmet');
-const session = require('express-session');
+const express   = require('express');
+const path      = require('path');
+const cors      = require('cors');
+const helmet    = require('helmet');
+const session   = require('express-session');
 const rateLimit = require('express-rate-limit');
 
 const usuariosRoutes     = require('./routes/usuarios.routes');
@@ -19,6 +19,7 @@ const app = express();
 
 // Segurança de cabeçalhos HTTP
 app.use(helmet());
+app.use('/img', express.static(path.join(__dirname, '../database/fotos/img')));
 
 // Rate limiting global
 app.use(rateLimit({

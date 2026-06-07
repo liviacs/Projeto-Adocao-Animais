@@ -2,12 +2,19 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+
+function autenticado(req, res, next) {
+  if (req.session && req.session.usuario) return next();
+  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
+}
+
 //Todos os animais
-router.get('/', async (req, res) => {
+router.get('/', autenticado, async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT id_animal, nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status
-      FROM animais
+      SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, f.caminho_foto, f.id_foto
+      FROM animais a
+      INNER JOIN fotos_animais f ON a.id_animal = f.id_animal
     `);
 
     res.json(result.rows);
@@ -17,12 +24,15 @@ router.get('/', async (req, res) => {
 });
 
 //Busca animal por ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', autenticado, async (req, res) => {
   try {
     const { id } = req.params;
 
     const result = await db.query(
-      `SELECT * FROM animais WHERE id_animal = $1`,
+      `SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, f.caminho_foto, f.id_foto
+      FROM animais a
+      INNER JOIN fotos_animais f ON a.id_animal = f.id_animal
+      WHERE a.id_animal = $1`,
       [id]
     );
 
@@ -33,7 +43,7 @@ router.get('/:id', async (req, res) => {
 });
 
 //Criar animal
-router.post('/', async (req, res) => {
+router.post('/', autenticado, async (req, res) => {
   try {
     const { nome, especie, idade, descricao } = req.body;
 
@@ -51,7 +61,7 @@ router.post('/', async (req, res) => {
 });
 
 //Atualizar animal
-router.put('/:id', async (req, res) => {
+router.put('/:id', autenticado, async (req, res) => {
   try {
     const { id } = req.params;
     const {nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status} = req.body;

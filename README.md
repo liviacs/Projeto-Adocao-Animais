@@ -267,7 +267,7 @@ http://localhost:3000
 - Giovanni Pinheiro
 - Hellen Atanasio
 - Livia Caroline
-- Marcus Vinicius
+- Marcus Ladeia
 - Victoria Lungov
 - Vitoria Pereira
 - Yohann Mazario
