@@ -1,0 +1,64 @@
+// tipos principais do sistema
+// se precisar adicionar campo novo, adiciona aqui e no banco também
+
+export type StatusAnimal = "disponivel" | "em_processo" | "adotado"
+export type EspecieAnimal = "cachorro" | "gato" | "coelho" | "passaro" | "outro"
+export type SexoAnimal = "macho" | "femea"
+export type PerfilUsuario = "admin" | "adotante"
+export type StatusSolicitacao = "pendente" | "aprovada" | "rejeitada"
+
+export interface Animal {
+  id: string
+  nome: string
+  especie: EspecieAnimal
+  raca: string
+  idade: number
+  unidadeIdade: "meses" | "anos"
+  sexo: SexoAnimal
+  status: StatusAnimal
+  descricao: string
+  fotos: string[]
+  peso?: number
+  vacinado: boolean
+  castrado: boolean
+  criadoEm: string
+  atualizadoEm: string
+}
+
+export interface Usuario {
+  id: string
+  nome: string
+  email: string
+  perfil: PerfilUsuario
+  telefone?: string
+  ativo: boolean
+  criadoEm: string
+}
+
+export interface Solicitacao {
+  id: string
+  animal: Animal
+  usuario: Usuario
+  status: StatusSolicitacao
+  mensagem?: string
+  criadaEm: string
+  atualizadaEm: string
+}
+
+export interface EstatisticasDashboard {
+  totalAnimais: number
+  disponiveis: number
+  emProcesso: number
+  adotados: number
+  totalUsuarios: number
+  solicitacoesPendentes: number
+  adocoesEsteMes: number
+}
+
+export interface RespostaPaginada<T> {
+  dados: T[]
+  total: number
+  pagina: number
+  porPagina: number
+  totalPaginas: number
+}
