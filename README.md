@@ -183,10 +183,14 @@ A API estará disponível em `http://localhost:3000`.
 
 | Nome | GitHub |
 |------|--------|
-| Membro 1 | [@usuario1](https://github.com/usuario1) |
-| Membro 2 | [@usuario2](https://github.com/usuario2) |
-| Membro 3 | [@usuario3](https://github.com/usuario3) |
-| Membro 4 | [@usuario4](https://github.com/usuario4) |
+| Ana Carolina  | [@usuario1](https://github.com/usuario1) |
+| Giovanni Pinheiro | [@usuario2](https://github.com/usuario2) |
+| Hellen Atanasio | [@usuario3](https://github.com/usuario3) |
+| Livia | [@usuario3](https://github.com/liviacs) |
+| Marcus Vinicus | [@usuario3](https://github.com/usuario3) |
+| Victoria Lungov| [@usuario3](https://github.com/usuario3) |
+| Vitoria  | [@usuario3](https://github.com/usuario3) |
+| Yohann | [@usuario3](https://github.com/usuario3) |
 
 ---
 
