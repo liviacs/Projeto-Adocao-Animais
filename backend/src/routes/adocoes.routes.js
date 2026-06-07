@@ -76,20 +76,36 @@ router.get('/:id', async (req, res) => {
 
 //Criar adoção
 router.post('/', async (req, res) => {
+  const client = await db.connect();
+  
   try {
+    await client.query('BEGIN');
+
     const { id_usuario, id_animal } = req.body;
     const data = moment().format('YYYY-MM-DD HH:mm:ss.SSSSSS');
 
-    const result = await db.query(
+    const result = await client.query(
       `INSERT INTO adocoes (id_usuario, id_animal, data_adocao)
        VALUES ($1, $2, $3)
        RETURNING *`,
       [id_usuario, id_animal, data]
     );
 
+    await client.query(
+      `UPDATE animais
+       SET status = 'ADOTADO'
+       WHERE id_animal = $1`,
+      [id_animal]
+    );
+
+    await client.query('COMMIT');
     res.status(201).json(result.rows[0]);
+    
   } catch (error) {
+    await client.query('ROLLBACK');
     res.status(500).json({ erro: error.message });
+  } finally {
+    client.release();
   }
 });
 
