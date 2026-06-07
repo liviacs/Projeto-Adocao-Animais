@@ -185,7 +185,7 @@ A API estará disponível em `http://localhost:3000`.
 |------|--------|
 | Ana Carolina  | [@usuario1](https://github.com/usuario1) |
 | Giovanni Pinheiro | [@usuario2](https://github.com/usuario2) |
-| Hellen Atanasio | [@usuario3](https://github.com/usuario3) |
+| Hellen Atanasio | [@usuario3](https://github.com/4allen) |
 | Livia | [@usuario3](https://github.com/liviacs) |
 | Marcus Vinicus | [@usuario3](https://github.com/usuario3) |
 | Victoria Lungov| [@usuario3](https://github.com/usuario3) |
