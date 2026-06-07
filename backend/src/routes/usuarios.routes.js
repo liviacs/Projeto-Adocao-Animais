@@ -8,8 +8,22 @@ const bcrypt = require('bcrypt');
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT id_usuario, nome, email, telefone, tipo, data_cadastro
-      FROM usuarios
+      SELECT 
+        u.id_usuario, 
+        u.nome, 
+        u.email, 
+        u.telefone, 
+        u.tipo, 
+        u.data_cadastro,
+        e.id_endereco,
+        e.cep,
+        e.rua,
+        e.numero,
+        e.bairro,
+        e.cidade,
+        e.estado
+      FROM usuarios u
+      INNER JOIN enderecos e ON u.id_usuario = e.id_usuario
     `);
     res.json(result.rows);
   } catch (err) {
@@ -17,13 +31,28 @@ router.get('/', async (req, res) => {
   }
 });
 
+//Usuário específico
 router.get('/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const result = await db.query(`
-      SELECT id_usuario, nome, email, telefone, tipo, data_cadastro
-      FROM usuarios
-      WHERE id_usuario = $1`, [id]
+      SELECT 
+        u.id_usuario, 
+        u.nome, 
+        u.email, 
+        u.telefone, 
+        u.tipo, 
+        u.data_cadastro,
+        e.id_endereco,
+        e.cep,
+        e.rua,
+        e.numero,
+        e.bairro,
+        e.cidade,
+        e.estado
+      FROM usuarios u
+      LEFT JOIN enderecos e ON u.id_usuario = e.id_usuario
+      WHERE u.id_usuario = $1`, [id]
     );
     res.json(result.rows);
   } catch (err) {

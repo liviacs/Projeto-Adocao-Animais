@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     const result = await db.query(`
       SELECT
         a.id_animal,
-        a.nome,                
+        a.nome,
         a.especie,
         a.raca,
         a.idade,
