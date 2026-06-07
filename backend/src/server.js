@@ -7,7 +7,7 @@ const usuariosRoutes = require('./routes/usuarios.routes');
 const animaisRoutes = require('./routes/animais.routes');
 // const fotosRoutes = require('./routes/fotos.routes');
 // const solicitacoesRoutes = require('./routes/solicitacoes.routes');
-// const adotacoesRoutes = require('./routes/adotacoes.routes');
+// const adotacoesRoutes = require('./routes/adocoes.routes');
 // const favoritosRoutes = require('./routes/favoritos.routes');
 // const enderecosRoutes = require('./routes/enderecos.routes');
 
@@ -21,7 +21,7 @@ app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/animais', animaisRoutes);
 // app.use('/api/fotos', fotosRoutes);
 // app.use('/api/solicitacoes', solicitacoesRoutes);
-// app.use('/api/adotacoes', adotacoesRoutes);
+// app.use('/api/adocoes', adocoesRoutes);
 // app.use('/api/favoritos', favoritosRoutes);
 // app.use('/api/enderecos', enderecosRoutes);
 
