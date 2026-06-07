@@ -184,13 +184,13 @@ A API estará disponível em `http://localhost:3000`.
 | Nome | GitHub |
 |------|--------|
 | Ana Carolina  | [@usuario1](https://github.com/usuario1) |
-| Giovanni Pinheiro | [@usuario2](https://github.com/usuario2) |
-| Hellen Atanasio | [@usuario3](https://github.com/4allen) |
-| Livia | [@usuario3](https://github.com/liviacs) |
-| Marcus Vinicus | [@usuario3](https://github.com/usuario3) |
-| Victoria Lungov| [@usuario3](https://github.com/usuario3) |
-| Vitoria  | [@usuario3](https://github.com/usuario3) |
-| Yohann | [@usuario3](https://github.com/usuario3) |
+| Giovanni Pinheiro | [@GIPB12](https://github.com/GIPB12) |
+| Hellen Atanasio | [@4allen](https://github.com/4allen) |
+| Livia Caroline | [@liviacs](https://github.com/liviacs) |
+| Marcus Vinicus | [@Ladeias2](https://github.com/Ladeias2) |
+| Victoria Lungov| [@viihlungov](https://github.com/viihlungov) |
+| Vitoria Pereira | [@002-VIKER](https://github.com/002-VIKER) |
+| Yohann | [@yohannmazario](https://github.com/yohannmazario) |
 
 ---
 
