@@ -83,7 +83,7 @@ router.post('/', async (req, res) => {
       `INSERT INTO usuarios (nome, email, senha, telefone, tipo)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro`,
-      [nome, email, hashSenha, telefone, tipo || 'usuario']
+      [nome, email, hashSenha, telefone, tipo || 'ADOTANTE']
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
