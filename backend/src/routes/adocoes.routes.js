@@ -20,13 +20,13 @@ router.get('/', async (req, res) => {
         a.status,
         u.nome,               
         u.email,
-        u.telefone
+        u.telefone,
+        ad.id_adocao
     FROM
         animais                     AS a
         INNER JOIN adocoes          AS ad   ON a.id_animal = ad.id_animal
         INNER JOIN usuarios        AS u    ON ad.id_usuario = u.id_usuario
     `);
-
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ erro: err.message });
@@ -37,7 +37,6 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const id = req.params.id;
-
     const result = await db.query(
       `SELECT
         a.id_animal,
@@ -62,11 +61,9 @@ router.get('/:id', async (req, res) => {
       WHERE ad.id_adocao = $1`,
       [id]
     );
-
     if (!result.rows || result.rows.length === 0) {
       return res.status(404).json({ message: 'Adoção não encontrada', id: id });
     }
-
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Database error:', error);
@@ -77,30 +74,30 @@ router.get('/:id', async (req, res) => {
 //Criar adoção
 router.post('/', async (req, res) => {
   const client = await db.connect();
-  
   try {
     await client.query('BEGIN');
-
     const { id_usuario, id_animal } = req.body;
     const data = moment().format('YYYY-MM-DD HH:mm:ss.SSSSSS');
-
     const result = await client.query(
       `INSERT INTO adocoes (id_usuario, id_animal, data_adocao)
        VALUES ($1, $2, $3)
        RETURNING *`,
       [id_usuario, id_animal, data]
     );
-
     await client.query(
       `UPDATE animais
        SET status = 'ADOTADO'
        WHERE id_animal = $1`,
       [id_animal]
     );
-
+    await client.query(
+      `UPDATE solicitacoes
+       SET status = 'APROVADA'
+       WHERE id_animal = $1`,
+      [id_animal]
+    );
     await client.query('COMMIT');
     res.status(201).json(result.rows[0]);
-    
   } catch (error) {
     await client.query('ROLLBACK');
     res.status(500).json({ erro: error.message });
