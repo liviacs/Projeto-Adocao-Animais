@@ -11,7 +11,7 @@ import type {
   PerfilUsuario,
 } from "@/tipos"
 
-const URL_API = process.env.NEXT_PUBLIC_URL_API ?? "http://localhost:3001/api"
+const URL_API = process.env.NEXT_PUBLIC_URL_API ?? "http://localhost:3005/api"
 
 async function requisitar<T>(caminho: string, opcoes?: RequestInit): Promise<T> {
   const resposta = await fetch(`${URL_API}${caminho}`, {
