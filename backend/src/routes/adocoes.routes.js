@@ -113,7 +113,7 @@ router.put('/:id', async (req, res) => {
     const {id_adocao, id_animal, id_usuario, status} = req.body;
     const result = await db.query(
       `UPDATE adocoes
-       SET id_animal=$2, id_usuario=$3, status=$3
+       SET id_animal=$2, id_usuario=$3, status=$4
        WHERE id_adocao=$1
        RETURNING *`,
       [id_adocao, id_animal, id_usuario, status]
