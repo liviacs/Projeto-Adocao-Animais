@@ -6,8 +6,8 @@ import { Plus, PawPrint } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
 import { buscarAnimais } from "@/lib/api"
 import type { StatusAnimal, EspecieAnimal } from "@/tipos"
-import { Layout, BarraSuperior } from "@/components/layout"
-import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/ui"
+import { Layout, BarraSuperior } from "@/components/animais/layout"
+import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"
 
 const opcoesStatus = [
   { valor: "",            rotulo: "Todos os status" },
