@@ -1,140 +1,73 @@
 "use client"
 
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Plus, PawPrint } from "lucide-react"
-import { useConsulta } from "@/hooks/useConsulta"
-import { buscarAnimais } from "@/lib/api"
-import type { StatusAnimal, EspecieAnimal } from "@/tipos"
-import { Layout, BarraSuperior } from "@/components/animais/layout"
-import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"
+import { PawPrint } from "lucide-react"
 
-const opcoesStatus = [
-  { valor: "",            rotulo: "Todos os status" },
-  { valor: "disponivel",  rotulo: "Disponível" },
-  { valor: "em_processo", rotulo: "Em processo" },
-  { valor: "adotado",     rotulo: "Adotado" },
-]
-
-const opcoesEspecie = [
-  { valor: "",         rotulo: "Todas as espécies" },
-  { valor: "cachorro", rotulo: "Cachorro" },
-  { valor: "gato",     rotulo: "Gato" },
-  { valor: "coelho",   rotulo: "Coelho" },
-  { valor: "passaro",  rotulo: "Pássaro" },
-  { valor: "outro",    rotulo: "Outro" },
-]
-
-export default function PaginaAnimais() {
+export default function PaginaLogin() {
   const router = useRouter()
-  const [busca, setBusca]     = useState("")
-  const [status, setStatus]   = useState<StatusAnimal | "">("")
-  const [especie, setEspecie] = useState<EspecieAnimal | "">("")
-  const [pagina, setPagina]   = useState(1)
+  const [email, setEmail] = useState("")
+  const [senha, setSenha] = useState("")
+  const [erro, setErro] = useState("")
+  const [entrando, setEntrando] = useState(false)
 
-  const { dados, carregando } = useConsulta(
-    () => buscarAnimais({ pagina, porPagina: 12, busca, status, especie }),
-    [pagina, busca, status, especie]
-  )
-
-  const limparFiltros = () => {
-    setStatus("")
-    setEspecie("")
-    setBusca("")
-    setPagina(1)
+  const entrar = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErro("")
+    setEntrando(true)
+    const resultado = await signIn("credentials", { email, password: senha, redirect: false })
+    setEntrando(false)
+    if (resultado?.error) {
+      setErro("Email ou senha inválidos.")
+    } else {
+      router.push("/dashboard")
+    }
   }
 
   return (
-    <Layout>
-      <BarraSuperior
-        titulo="Animais"
-        aoBuscar={(v) => { setBusca(v); setPagina(1) }}
-        acao={
-          <Botao icone={<Plus size={14} />} onClick={() => router.push("/animais/novo")}>
-            Cadastrar animal
-          </Botao>
-        }
-      />
-
-      <div className="space-y-4 p-6">
-
-        {/* Filtros */}
-        <div className="flex items-center gap-3">
-          <Seletor
-            opcoes={opcoesStatus}
-            value={status}
-            onChange={(e) => { setStatus(e.target.value as StatusAnimal | ""); setPagina(1) }}
-            className="w-44 py-1.5 text-xs"
-          />
-          <Seletor
-            opcoes={opcoesEspecie}
-            value={especie}
-            onChange={(e) => { setEspecie(e.target.value as EspecieAnimal | ""); setPagina(1) }}
-            className="w-44 py-1.5 text-xs"
-          />
-          {(status || especie || busca) && (
-            <button onClick={limparFiltros} className="text-xs text-zinc-400 hover:text-zinc-700">
-              Limpar filtros
-            </button>
-          )}
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#000", padding: 16 }}>
+      <div style={{ width: "100%", maxWidth: 360, background: "#0a0a0a", borderRadius: 16, border: "1px solid #1f1f1f", padding: "32px 28px", boxShadow: "0 8px 40px rgba(0,0,0,0.6)" }}>
+        
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 28, textAlign: "center" }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", color: "#000" }}>
+            <PawPrint size={22} />
+          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, color: "#fff", margin: 0 }}>PetAdopt</h1>
+          <p style={{ fontSize: 13, color: "#525252", margin: 0 }}>Acesse sua conta</p>
         </div>
 
-        {/* Grid */}
-        {carregando ? (
-          <div className="flex justify-center py-20"><Carregando /></div>
-        ) : dados?.dados.length === 0 ? (
-          <Vazio
-            titulo="Nenhum animal encontrado"
-            descricao="Tente mudar os filtros ou cadastre um novo animal."
-            acao={
-              <Botao icone={<Plus size={14} />} onClick={() => router.push("/animais/novo")}>
-                Cadastrar animal
-              </Botao>
-            }
-          />
-        ) : (
-          <>
-            <div className="grid grid-cols-3 gap-4 xl:grid-cols-4">
-              {dados?.dados.map((animal) => (
-                <Card
-                  key={animal.id}
-                  onClick={() => router.push(`/animais/${animal.id}`)}
-                >
-                  <div className="flex h-28 items-center justify-center bg-zinc-100 dark:bg-zinc-800">
-                    {animal.fotos[0]
-                      ? <img src={animal.fotos[0]} alt={animal.nome} className="h-full w-full object-cover" />
-                      : <PawPrint size={28} className="text-zinc-300" />
-                    }
-                  </div>
-                  <div className="p-3">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{animal.nome}</p>
-                    <p className="mb-2 text-xs text-zinc-400">
-                      {animal.raca} · {animal.idade} {animal.unidadeIdade === "meses" ? "meses" : "anos"}
-                    </p>
-                    <Etiqueta variante={animal.status} />
-                  </div>
-                </Card>
-              ))}
-            </div>
+        <form onSubmit={entrar} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: "#737373" }}>Email</label>
+            <input type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required
+              style={{ borderRadius: 8, border: "1px solid #262626", background: "#141414", padding: "8px 12px", fontSize: 14, color: "#fff", outline: "none" }} />
+          </div>
 
-            {dados && dados.totalPaginas > 1 && (
-              <div className="flex items-center justify-between pt-2">
-                <p className="text-xs text-zinc-400">
-                  {dados.total} animais · página {dados.pagina} de {dados.totalPaginas}
-                </p>
-                <div className="flex gap-2">
-                  <Botao variante="secundario" tamanho="pequeno" disabled={pagina === 1} onClick={() => setPagina((p) => p - 1)}>
-                    Anterior
-                  </Botao>
-                  <Botao variante="secundario" tamanho="pequeno" disabled={pagina === dados.totalPaginas} onClick={() => setPagina((p) => p + 1)}>
-                    Próxima
-                  </Botao>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: "#737373" }}>Senha</label>
+            <input type="password" placeholder="••••••••" value={senha} onChange={(e) => setSenha(e.target.value)} required
+              style={{ borderRadius: 8, border: "1px solid #262626", background: "#141414", padding: "8px 12px", fontSize: 14, color: "#fff", outline: "none" }} />
+          </div>
+
+          {erro && (
+            <p style={{ borderRadius: 8, background: "#1a0a0a", padding: "8px 12px", fontSize: 12, color: "#f87171", border: "1px solid #3f1111", margin: 0 }}>
+              {erro}
+            </p>
+          )}
+
+          <button type="submit" disabled={entrando}
+            style={{ borderRadius: 8, padding: "8px 16px", fontSize: 14, fontWeight: 500, background: "#fff", color: "#000", border: "none", cursor: entrando ? "not-allowed" : "pointer", marginTop: 4 }}>
+            {entrando ? "Entrando…" : "Entrar"}
+          </button>
+        </form>
+
+        <div style={{ marginTop: 16, textAlign: "center" }}>
+          <a href="/auth/esqueci-senha" style={{ fontSize: 12, color: "#404040", textDecoration: "none" }}>
+            Esqueceu a senha?
+          </a>
+        </div>
       </div>
-    </Layout>
+    </div>
   )
 }
