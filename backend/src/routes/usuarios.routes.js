@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
 
+
 //Todos os usuários
 router.get('/', async (req, res) => {
   try {
@@ -10,6 +11,20 @@ router.get('/', async (req, res) => {
       SELECT id_usuario, nome, email, telefone, tipo, data_cadastro
       FROM usuarios
     `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await db.query(`
+      SELECT id_usuario, nome, email, telefone, tipo, data_cadastro
+      FROM usuarios
+      WHERE id_usuario = $1`, [id]
+    );
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ erro: err.message });
@@ -49,7 +64,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
     const { nome, email, senha, telefone, tipo } = req.body;
     const usuario = await db.query(
       'SELECT * FROM usuarios WHERE id_usuario = $1',
