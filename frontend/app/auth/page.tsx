@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 function cn(...classes) {
   return classes.filter(Boolean).join(" ")
@@ -125,6 +127,7 @@ function Botao({ carregando, children, disabled, style, ...props }) {
 
 
 export default function PaginaLogin() {
+  const router = useRouter()
   const [email, setEmail]       = useState("")
   const [senha, setSenha]       = useState("")
   const [erro, setErro]         = useState("")
@@ -135,14 +138,18 @@ export default function PaginaLogin() {
     setErro("")
     setEntrando(true)
 
-  
-    await new Promise((r) => setTimeout(r, 1500))
+    const resultado = await signIn("credentials", {
+      email,
+      senha,
+      redirect: false,
+    })
+
     setEntrando(false)
 
-    if (!email.includes("@")) {
+    if (resultado?.error) {
       setErro("Email ou senha inválidos.")
     } else {
-      alert("Login efetuado! Redirecionando para /dashboard")
+      router.push("/dashboard")
     }
   }
 
