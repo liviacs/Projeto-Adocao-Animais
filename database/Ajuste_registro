@@ -1,0 +1,58 @@
+/*ATUALIZANDO OS STATUS DOS ANIMAIS*/
+UPDATE animais
+SET status = CASE
+    WHEN id_animal IN (1,2,3) THEN 'ADOTADO'
+    WHEN id_animal IN (4,5) THEN 'EM_PROCESSO'
+    WHEN id_animal IN (6,7,8,9,10) THEN 'DISPONIVEL'
+END
+WHERE id_animal BETWEEN 1 AND 10;
+
+
+/*ATUALIZANDO TABELA SOLICITACOES*/
+UPDATE solicitacoes
+SET status = CASE
+    WHEN id_animal IN (1,2,3,4,5) THEN 'APROVADA'
+    WHEN id_animal IN (6,7,8,9,10) THEN 'PENDENTE'
+END
+WHERE id_animal BETWEEN 1 AND 10;
+
+
+
+/*ATUALIZANDO TABELA ADOCOES*/
+DELETE FROM adocoes;
+
+INSERT INTO adocoes
+(id_usuario, id_animal)
+VALUES
+(1,1),  -- Livia adotou Rex
+(2,2),  -- Ana adotou Mimi
+(3,3);  -- Vic adotou Thor
+
+
+/*VALIDAÇÃO DOS DADOS APÓS AS ATUALIZAÇÕES*/
+
+SELECT
+    id_animal,
+    nome,
+    status
+FROM animais
+ORDER BY id_animal;
+
+SELECT
+    id_solicitacao,
+    id_usuario,
+    id_animal,
+    status
+FROM solicitacoes
+ORDER BY id_animal;
+
+SELECT
+    a.id_adocao,
+    u.nome AS adotante,
+    an.nome AS animal,
+    a.data_adocao
+FROM adocoes a
+INNER JOIN usuarios u
+    ON a.id_usuario = u.id_usuario
+INNER JOIN animais an
+    ON a.id_animal = an.id_animal;
