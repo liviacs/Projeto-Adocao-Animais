@@ -5,8 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 
-// Segredo do NextAuth (mesmo do .env)
-const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'nextauth-secret-padrao-troque-em-producao';
+const { SECRET_KEY } = require('../auth');
 
 // Conexão com o banco
 const db = require('../db');
@@ -21,7 +20,6 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ erro: 'Email e senha são obrigatórios.' });
     }
 
-    // 2. Buscar usuário no banco
     const result = await client.query(
       'SELECT id_usuario, nome, email, senha, tipo FROM usuarios WHERE email = $1',
       [email]
@@ -46,7 +44,8 @@ router.post('/', async (req, res) => {
       tipo: usuario.tipo,                  
     };
 
-    const token = jwt.sign(payload, NEXTAUTH_SECRET, {
+    // ⭐ USE A MESMA SECRET_KEY
+    const token = jwt.sign(payload, SECRET_KEY, {
       algorithm: 'HS256',                  
       expiresIn: '24h',                   
     });
