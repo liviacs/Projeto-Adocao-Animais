@@ -286,13 +286,18 @@ export const buscarEstatisticas = async (): Promise<EstatisticasDashboard> => {
 }
 
 export const baixarRelatorio = async (tipo: "mensal" | "especies" | "adocoes") => {
-  const resposta = await fetch(`${URL_API}/relatorios/${tipo}`)
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+  const resposta = await fetch(`${URL_API}/relatorios/${tipo}`, {
+    headers: {
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    },
+  })
   if (!resposta.ok) throw new Error("Falha ao gerar relatório")
   const blob = await resposta.blob()
   const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
   link.href = url
-  link.download = `relatorio-${tipo}-${new Date().toISOString().slice(0, 10)}.pdf`
+  link.download = `relatorio-${tipo}-${new Date().toISOString().slice(0, 10)}.csv`
   link.click()
   URL.revokeObjectURL(url)
 }
