@@ -12,8 +12,9 @@ import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/
 const opcoesStatus = [
   { valor: "",            rotulo: "Todos os status" },
   { valor: "disponivel",  rotulo: "Disponível" },
-  { valor: "em_processo", rotulo: "Em processo" },
+  { valor: "em_processo", rotulo: "Em processamento" },
   { valor: "adotado",     rotulo: "Adotado" },
+  { valor: "falecido",    rotulo: "Falecido" },
 ]
 
 const opcoesEspecie = [
@@ -99,6 +100,7 @@ export default function PaginaAnimais() {
                 <Card
                   key={animal.id}
                   onClick={() => router.push(`/animais/${animal.id}`)}
+                  className={animal.status === "falecido" ? "opacity-60 grayscale" : ""}
                 >
                   <div className="flex h-28 items-center justify-center bg-zinc-100 dark:bg-zinc-800">
                     {animal.fotos[0]

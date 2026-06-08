@@ -10,6 +10,7 @@ const coresEtiqueta = {
   rejeitada:    "bg-red-50 text-red-700 border-red-200",
   admin:        "bg-violet-50 text-violet-700 border-violet-200",
   adotante:     "bg-zinc-100 text-zinc-600 border-zinc-200",
+  falecido:     "bg-zinc-200 text-zinc-500 border-zinc-300",
 }
 
 const textosEtiqueta: Record<string, string> = {
@@ -21,6 +22,7 @@ const textosEtiqueta: Record<string, string> = {
   rejeitada:   "Rejeitada",
   admin:       "Admin",
   adotante:    "Adotante",
+  falecido:    "Falecido",
 }
 
 interface EtiquetaProps {

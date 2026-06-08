@@ -9,7 +9,7 @@ router.get('/', verificarToken, async (req, res) => {
     const result = await db.query(`
       SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, f.caminho_foto, f.id_foto
       FROM animais a
-      INNER JOIN fotos_animais f ON a.id_animal = f.id_animal
+      LEFT JOIN fotos_animais f ON a.id_animal = f.id_animal
     `);
 
     res.json(result.rows);
@@ -26,7 +26,7 @@ router.get('/:id', verificarToken, async (req, res) => {
     const result = await db.query(
       `SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, f.caminho_foto, f.id_foto
       FROM animais a
-      INNER JOIN fotos_animais f ON a.id_animal = f.id_animal
+      LEFT JOIN fotos_animais f ON a.id_animal = f.id_animal
       WHERE a.id_animal = $1`,
       [id]
     );

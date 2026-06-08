@@ -1,7 +1,7 @@
 // tipos principais do sistema
 // se precisar adicionar campo novo, adiciona aqui e no banco também
 
-export type StatusAnimal = "disponivel" | "em_processo" | "adotado"
+export type StatusAnimal = "disponivel" | "em_processo" | "adotado" | "falecido"
 export type EspecieAnimal = "cachorro" | "gato" | "coelho" | "passaro" | "outro"
 export type SexoAnimal = "macho" | "femea"
 export type PerfilUsuario = "admin" | "adotante"

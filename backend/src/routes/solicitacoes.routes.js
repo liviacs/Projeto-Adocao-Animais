@@ -42,6 +42,17 @@ router.post('/', verificarToken, async (req, res) => {
     await client.query('BEGIN');
 
     const { id_usuario, id_animal } = req.body;
+
+    // bloqueia se o animal já tem solicitação PENDENTE (de qualquer usuário)
+    const pendente = await client.query(
+      `SELECT 1 FROM solicitacoes WHERE id_animal = $1 AND status = 'PENDENTE' LIMIT 1`,
+      [id_animal]
+    );
+    if (pendente.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ erro: 'Este animal já possui uma solicitação pendente.' });
+    }
+
     const data_solicitacao = moment().format('YYYY-MM-DD HH:mm:ss.SSSSSS');
 
     const result = await client.query(
@@ -52,9 +63,7 @@ router.post('/', verificarToken, async (req, res) => {
     );
 
     await client.query(
-      `UPDATE animais
-       SET status = 'EM_PROCESSAMENTO'
-       WHERE id_animal = $1`,
+      `UPDATE animais SET status = 'EM_PROCESSO' WHERE id_animal = $1`,
       [id_animal]
     );
 
@@ -69,7 +78,7 @@ router.post('/', verificarToken, async (req, res) => {
   }
 });
 
-//Atualizar solicitação
+//Atualizar solicitação (aprovar / reprovar)
 router.put('/:id', verificarToken, async (req, res) => {
   const client = await db.connect();
 
@@ -77,26 +86,36 @@ router.put('/:id', verificarToken, async (req, res) => {
     await client.query('BEGIN');
 
     const id_solicitacao = req.params.id;
-    const { id_usuario, id_animal, status } = req.body;
+    const { id_usuario, id_animal, status, motivo_rejeicao } = req.body;
 
     const result = await client.query(
       `UPDATE solicitacoes
-       SET id_usuario = $1, id_animal = $2, status = $3
-       WHERE id_solicitacao = $4
+       SET id_usuario = $1, id_animal = $2, status = $3, motivo_rejeicao = $4
+       WHERE id_solicitacao = $5
        RETURNING *`,
-      [id_usuario, id_animal, status, id_solicitacao]
+      [id_usuario, id_animal, status, motivo_rejeicao || null, id_solicitacao]
     );
 
     if (status === 'APROVADA') {
+      // animal vira ADOTADO
       await client.query(
         `UPDATE animais SET status = 'ADOTADO' WHERE id_animal = $1`,
         [id_animal]
       );
     } else if (status === 'REPROVADA') {
-      await client.query(
-        `UPDATE animais SET status = 'DISPONIVEL' WHERE id_animal = $1`,
-        [id_animal]
-      );
+      // decide o status do animal conforme o motivo
+      if (motivo_rejeicao === 'Pet falecido') {
+        await client.query(
+          `UPDATE animais SET status = 'FALECIDO' WHERE id_animal = $1`,
+          [id_animal]
+        );
+      } else {
+        // falta de documentos, desistência, outro → volta a ficar disponível
+        await client.query(
+          `UPDATE animais SET status = 'DISPONIVEL' WHERE id_animal = $1`,
+          [id_animal]
+        );
+      }
     }
 
     await client.query('COMMIT');

@@ -60,6 +60,8 @@ function adaptarStatusAnimal(valor: string): StatusAnimal {
       return "em_processo"
     case "adotado":
       return "adotado"
+    case "falecido":
+      return "falecido"
     default:
       return "disponivel"
   }
@@ -282,11 +284,16 @@ export const buscarSolicitacoes = async (
   return paginarLocalmente(solicitacoes, pagina, porPagina)
 }
 
-export const criarSolicitacao = (idUsuario: string, idAnimal: string) =>
-  requisitar<Solicitacao>("/solicitacoes", {
+export const criarSolicitacao = (idAnimal: string) => {
+  const usuarioStr = typeof window !== "undefined" ? localStorage.getItem("usuario") : null
+  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null
+  const idUsuario = usuario?.id
+  if (!idUsuario) throw new Error("Usuário não identificado. Faça login novamente.")
+  return requisitar<Solicitacao>("/solicitacoes", {
     method: "POST",
     body: JSON.stringify({ id_usuario: Number(idUsuario), id_animal: Number(idAnimal) }),
   })
+}
 
 // backend usa PUT /solicitacoes/:id com { status }
 export const aprovarSolicitacao = (id: string, idUsuario: string, idAnimal: string) =>
@@ -295,10 +302,15 @@ export const aprovarSolicitacao = (id: string, idUsuario: string, idAnimal: stri
     body: JSON.stringify({ id_usuario: Number(idUsuario), id_animal: Number(idAnimal), status: "APROVADA" }),
   })
 
-export const rejeitarSolicitacao = (id: string, idUsuario: string, idAnimal: string) =>
+export const rejeitarSolicitacao = (id: string, idUsuario: string, idAnimal: string, motivo: string) =>
   requisitar<Solicitacao>(`/solicitacoes/${id}`, {
     method: "PUT",
-    body: JSON.stringify({ id_usuario: Number(idUsuario), id_animal: Number(idAnimal), status: "REPROVADA" }),
+    body: JSON.stringify({
+      id_usuario: Number(idUsuario),
+      id_animal: Number(idAnimal),
+      status: "REPROVADA",
+      motivo_rejeicao: motivo,
+    }),
   })
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
