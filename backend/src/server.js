@@ -21,8 +21,10 @@ const relatoriosRoutes   = require('./routes/relatorios.routes');
 const app = express();
 
 // Segurança de cabeçalhos HTTP
-app.use(helmet());
-app.use('/img', express.static(path.join(__dirname, '../database/fotos/img')));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
+app.use('/img', express.static(path.join(__dirname, '../../database/fotos')));
 
 // Rate limiting global
 app.use(rateLimit({

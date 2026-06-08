@@ -102,7 +102,9 @@ function adaptarAnimal(bruto: any): Animal {
     sexo: adaptarSexo(bruto.sexo ?? ""),
     status: adaptarStatusAnimal(bruto.status ?? ""),
     descricao: bruto.descricao ?? "",
-    fotos: Array.isArray(bruto.fotos) ? bruto.fotos : [], // backend ainda não envia fotos
+    fotos: bruto.caminho_foto
+  ? [`http://localhost:3005/img/${bruto.caminho_foto}`]
+  : [],
     peso: bruto.peso != null ? Number(bruto.peso) : undefined,
     vacinado: saude.includes("vacinad"),
     castrado: saude.includes("castrad"),
