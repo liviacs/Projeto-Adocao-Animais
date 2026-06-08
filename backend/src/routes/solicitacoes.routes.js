@@ -67,6 +67,17 @@ router.post('/', verificarToken, async (req, res) => {
       [id_animal]
     );
 
+    // notifica todos os admins sobre a nova solicitação
+    const admins = await client.query(`SELECT id_usuario FROM usuarios WHERE tipo = 'ADMIN'`);
+    const animalInfo = await client.query(`SELECT nome FROM animais WHERE id_animal = $1`, [id_animal]);
+    const nomeAnimal = animalInfo.rows[0]?.nome ?? 'um animal';
+    for (const admin of admins.rows) {
+      await client.query(
+        `INSERT INTO notificacoes (id_usuario, tipo, mensagem) VALUES ($1, 'nova', $2)`,
+        [admin.id_usuario, `Nova solicitação de adoção para ${nomeAnimal}`]
+      );
+    }
+
     await client.query('COMMIT');
     res.status(201).json(result.rows[0]);
 
@@ -116,6 +127,21 @@ router.put('/:id', verificarToken, async (req, res) => {
           [id_animal]
         );
       }
+    }
+
+    // notifica o adotante sobre o resultado
+    const animalInfo = await client.query(`SELECT nome FROM animais WHERE id_animal = $1`, [id_animal]);
+    const nomeAnimal = animalInfo.rows[0]?.nome ?? 'o animal';
+    if (status === 'APROVADA') {
+      await client.query(
+        `INSERT INTO notificacoes (id_usuario, tipo, mensagem) VALUES ($1, 'aprovada', $2)`,
+        [id_usuario, `Sua solicitação para adotar ${nomeAnimal} foi aprovada!`]
+      );
+    } else if (status === 'REPROVADA') {
+      await client.query(
+        `INSERT INTO notificacoes (id_usuario, tipo, mensagem) VALUES ($1, 'rejeitada', $2)`,
+        [id_usuario, `Sua solicitação para adotar ${nomeAnimal} foi recusada.`]
+      );
     }
 
     await client.query('COMMIT');

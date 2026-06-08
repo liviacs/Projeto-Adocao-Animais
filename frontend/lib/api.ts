@@ -371,3 +371,27 @@ export const baixarRelatorio = async (tipo: "mensal" | "especies" | "adocoes") =
   link.click()
   URL.revokeObjectURL(url)
 }
+
+export interface Notificacao {
+  id: string
+  tipo: "nova" | "aprovada" | "rejeitada"
+  mensagem: string
+  lida: boolean
+  data: string
+}
+
+export const buscarNotificacoes = async (): Promise<{ itens: Notificacao[]; naoLidas: number }> => {
+  const bruto = await requisitar<any[]>("/notificacoes")
+  const itens: Notificacao[] = (Array.isArray(bruto) ? bruto : []).map((n) => ({
+    id: String(n.id_notificacao),
+    tipo: n.tipo,
+    mensagem: n.mensagem,
+    lida: n.lida,
+    data: n.data_criacao,
+  }))
+  const naoLidas = itens.filter((n) => !n.lida).length
+  return { itens, naoLidas }
+}
+
+export const marcarNotificacaoLida = (id: string) =>
+  requisitar<any>(`/notificacoes/${id}/lida`, { method: "PUT" })
