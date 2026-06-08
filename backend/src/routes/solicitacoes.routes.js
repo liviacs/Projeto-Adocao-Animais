@@ -3,8 +3,14 @@ const router = express.Router();
 const db = require('../db');
 const moment = require('moment');
 
+
+function autenticado(req, res, next) {
+  if (req.session && req.session.usuario) return next();
+  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
+}
+
 //Todos as solicitações
-router.get('/', async (req, res) => {
+router.get('/', autenticado, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT id_solicitacao, id_usuario, id_animal, data_solicitacao, status
@@ -18,7 +24,7 @@ router.get('/', async (req, res) => {
 });
 
 //Busca solicitação por ID
-router.get('/:id_usuario', async (req, res) => {
+router.get('/:id_usuario', autenticado, async (req, res) => {
   try {
     const id_usuario = req.params.id_usuario;
 
@@ -34,7 +40,7 @@ router.get('/:id_usuario', async (req, res) => {
 });
 
 //Criar solicitação
-router.post('/', async (req, res) => {
+router.post('/', autenticado, async (req, res) => {
   const client = await db.connect();
 
   try {
@@ -69,7 +75,7 @@ router.post('/', async (req, res) => {
 });
 
 //Atualizar solicitação
-router.put('/:id', async (req, res) => {
+router.put('/:id', autenticado, async (req, res) => {
   const client = await db.connect();
 
   try {
