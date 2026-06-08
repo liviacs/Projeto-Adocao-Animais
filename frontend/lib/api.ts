@@ -14,16 +14,18 @@ import type {
 const URL_API = process.env.NEXT_PUBLIC_URL_API ?? "http://localhost:3005/api"
 
 async function requisitar<T>(caminho: string, opcoes?: RequestInit): Promise<T> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
   const resposta = await fetch(`${URL_API}${caminho}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    },
     ...opcoes,
   })
-
   if (!resposta.ok) {
     const erro = await resposta.json().catch(() => ({}))
-    throw new Error(erro.mensagem ?? "Algo deu errado")
+    throw new Error(erro.mensagem ?? erro.erro ?? "Algo deu errado")
   }
-
   return resposta.json()
 }
 

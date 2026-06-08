@@ -2,14 +2,11 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const moment = require('moment');
+const { verificarToken } = require('../auth');
 
-function autenticado(req, res, next) {
-  if (req.session && req.session.usuario) return next();
-  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
-}
 
 //Todos as adoções
-router.get('/', autenticado, async (req, res) => {
+router.get('/', verificarToken, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT
@@ -39,7 +36,7 @@ router.get('/', autenticado, async (req, res) => {
 });
 
 //Busca adoção por ID
-router.get('/:id', autenticado, async (req, res) => {
+router.get('/:id', verificarToken, async (req, res) => {
   try {
     const id = req.params.id;
     const result = await db.query(
@@ -77,7 +74,7 @@ router.get('/:id', autenticado, async (req, res) => {
 });
 
 //Criar adoção
-router.post('/', autenticado, async (req, res) => {
+router.post('/', verificarToken, async (req, res) => {
   const client = await db.connect();
   try {
     await client.query('BEGIN');
@@ -112,7 +109,7 @@ router.post('/', autenticado, async (req, res) => {
 });
 
 //Atualizar adocao
-router.put('/:id', autenticado, async (req, res) => {
+router.put('/:id', verificarToken, async (req, res) => {
   try {
     const id = req.params.id;
     const {id_adocao, id_animal, id_usuario, status} = req.body;

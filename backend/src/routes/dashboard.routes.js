@@ -1,13 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { verificarToken } = require('../auth');
 
-function autenticado(req, res, next) {
-  if (req.session && req.session.usuario) return next();
-  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
-}
-
-router.get('/estatisticas', autenticado, async (req, res) => {
+router.get('/estatisticas', verificarToken, async (req, res) => {
   try {
     const [animaisResult, usuariosResult, solicitacoesResult] = await Promise.all([
       db.query(`

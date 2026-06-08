@@ -1,8 +1,8 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
 import {
   LayoutDashboard,
   PawPrint,
@@ -48,7 +48,13 @@ interface BarraLateralProps {
 
 export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
   const pathname = usePathname()
-  const { data: sessao } = useSession()
+  const [usuario, setUsuario] = useState<{ nome?: string; email?: string } | null>(null)
+  useEffect(() => {
+    const u = localStorage.getItem("usuario")
+    if (u) {
+      try { setUsuario(JSON.parse(u)) } catch {}
+    }
+  }, [])
 
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
@@ -102,16 +108,20 @@ export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
       <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
         <div className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-            {iniciais(sessao?.user?.name ?? "US")}
+            {iniciais(usuario?.nome ?? "US")}
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-50">
-              {sessao?.user?.name ?? "Usuário"}
+              {usuario?.nome ?? "Usuário"}
             </p>
-            <p className="truncate text-[10px] text-zinc-400">{sessao?.user?.email}</p>
+            <p className="truncate text-[10px] text-zinc-400">{usuario?.email}</p>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/auth/login" })}
+            onClick={() => {
+              localStorage.removeItem("token")
+              localStorage.removeItem("usuario")
+              window.location.href = "/auth"
+            }}
             title="Sair"
             className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
           >

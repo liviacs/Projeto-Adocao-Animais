@@ -2,15 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const moment = require('moment');
-
-
-function autenticado(req, res, next) {
-  if (req.session && req.session.usuario) return next();
-  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
-}
+const { verificarToken } = require('../auth');
 
 //Todos as solicitações
-router.get('/', autenticado, async (req, res) => {
+router.get('/', verificarToken, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT id_solicitacao, id_usuario, id_animal, data_solicitacao, status
@@ -24,7 +19,7 @@ router.get('/', autenticado, async (req, res) => {
 });
 
 //Busca solicitação por ID
-router.get('/:id_usuario', autenticado, async (req, res) => {
+router.get('/:id_usuario', verificarToken, async (req, res) => {
   try {
     const id_usuario = req.params.id_usuario;
 
@@ -40,7 +35,7 @@ router.get('/:id_usuario', autenticado, async (req, res) => {
 });
 
 //Criar solicitação
-router.post('/', autenticado, async (req, res) => {
+router.post('/', verificarToken, async (req, res) => {
   const client = await db.connect();
 
   try {
@@ -75,7 +70,7 @@ router.post('/', autenticado, async (req, res) => {
 });
 
 //Atualizar solicitação
-router.put('/:id', autenticado, async (req, res) => {
+router.put('/:id', verificarToken, async (req, res) => {
   const client = await db.connect();
 
   try {

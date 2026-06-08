@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { PawPrint } from "lucide-react"
 import { Botao, Campo } from "@/components/animais/ui"
@@ -13,18 +12,28 @@ export default function PaginaLogin() {
   const [erro, setErro]         = useState("")
   const [entrando, setEntrando] = useState(false)
 
-  const entrar = async (e: React.FormEvent) => {
+const entrar = async (e: React.FormEvent) => {
     e.preventDefault()
     setErro("")
     setEntrando(true)
-
-    const resultado = await signIn("credentials", { email, password: senha, redirect: false })
-    setEntrando(false)
-
-    if (resultado?.error) {
-      setErro("Email ou senha inválidos.")
-    } else {
-      router.push("/dashboard")
+    try {
+      const response = await fetch('http://localhost:3005/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha })
+      })
+      const data = await response.json()
+      if (response.ok) {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('usuario', JSON.stringify(data.usuario))
+        router.push('/dashboard')
+      } else {
+        setErro(data.erro ?? 'Email ou senha incorretos')
+      }
+    } catch (err) {
+      setErro('Erro ao conectar com o servidor')
+    } finally {
+      setEntrando(false)
     }
   }
 
