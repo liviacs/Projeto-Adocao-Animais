@@ -4,7 +4,7 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { PawPrint } from "lucide-react"
-import { Botao, Campo } from "@/components/ui"
+import { Botao, Campo } from "@/components/animais/ui"
 
 export default function PaginaLogin() {
   const router = useRouter()

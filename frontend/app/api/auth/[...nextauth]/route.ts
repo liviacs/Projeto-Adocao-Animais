@@ -16,7 +16,7 @@ const handler = NextAuth({
         if (!credentials?.email || !credentials?.password) return null
 
         try {
-          const res = await fetch(`${BACKEND_URL}/api/usuarios/login`, {
+          const res = await fetch(`${BACKEND_URL}/api/auth`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             // credentials: "include" não é necessário aqui — servidor chama servidor
