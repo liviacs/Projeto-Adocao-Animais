@@ -2,6 +2,21 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { verificarToken } = require('../auth');
+const multer = require('multer');
+const path = require('path');
+
+// configura onde e como salvar as fotos
+const armazenamento = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../../../database/fotos'));
+  },
+  filename: (req, file, cb) => {
+    // nome único: timestamp + extensão original
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`);
+  },
+});
+const upload = multer({ storage: armazenamento });
 
 //Todos os animais
 router.get('/', verificarToken, async (req, res) => {
@@ -37,18 +52,15 @@ router.get('/:id', verificarToken, async (req, res) => {
   }
 });
 
-//Criar animal
 router.post('/', verificarToken, async (req, res) => {
   try {
-    const { nome, especie, idade, descricao } = req.body;
-
+    const { nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status } = req.body;
     const result = await db.query(
-      `INSERT INTO animais (nome, especie, idade, descricao)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO animais (nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
-      [nome, especie, idade, descricao]
+      [nome, especie, raca, idade, sexo, porte || null, cond_saude || null, descricao, status || 'DISPONIVEL']
     );
-
     res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ erro: error.message });
@@ -69,6 +81,24 @@ router.put('/:id', verificarToken, async (req, res) => {
       [nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status, id]
     );
     res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ erro: error.message });
+  }
+});
+
+// Upload de foto de um animal
+router.post('/:id/fotos', upload.single('foto'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.file) {
+      return res.status(400).json({ erro: 'Nenhuma foto enviada' });
+    }
+    // grava só o nome do arquivo (as fotos são servidas em /img/<nome>)
+    const result = await db.query(
+      `INSERT INTO fotos_animais (id_animal, caminho_foto) VALUES ($1, $2) RETURNING *`,
+      [id, req.file.filename]
+    );
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ erro: error.message });
   }
