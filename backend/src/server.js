@@ -8,12 +8,17 @@ const helmet    = require('helmet');
 const session   = require('express-session');
 const rateLimit = require('express-rate-limit');
 
+
+const authRoutes = require('./routes/auth.routes');
+
 const usuariosRoutes     = require('./routes/usuarios.routes');
+const enderecosRoutes    = require('./routes/enderecos.routes');
 const animaisRoutes      = require('./routes/animais.routes');
 const solicitacoesRoutes = require('./routes/solicitacoes.routes');
 const adocoesRoutes      = require('./routes/adocoes.routes');
 const dashboardRoutes    = require('./routes/dashboard.routes');
 const relatoriosRoutes   = require('./routes/relatorios.routes');
+
 
 const app = express();
 
@@ -32,7 +37,7 @@ app.use(rateLimit({
 
 // CORS configurado para o frontend
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:3001',
   credentials: true,
 }));
 
@@ -54,12 +59,15 @@ app.use(session({
 }));
 
 // Rotas
+app.use('/api/auth',          authRoutes);
 app.use('/api/usuarios',      usuariosRoutes);
+app.use('/api/enderecos',     enderecosRoutes);
 app.use('/api/animais',       animaisRoutes);
 app.use('/api/solicitacoes',  solicitacoesRoutes);
 app.use('/api/adocoes',       adocoesRoutes);
 app.use('/api/dashboard',     dashboardRoutes);
 app.use('/api/relatorios',    relatoriosRoutes);
+
 
 // Health check
 app.get('/api/health', (_req, res) => {
