@@ -238,29 +238,68 @@ export const buscarUsuario = async (id: string): Promise<Usuario> => {
 export const atualizarUsuario = (id: string, dados: Partial<Usuario>) =>
   requisitar<Usuario>(`/usuarios/${id}`, { method: "PUT", body: JSON.stringify(dados) })
 
-// ── Solicitações ──────────────────────────────────────────────────────────────
-// (rotas ainda não ativas no backend — mantidas para quando forem habilitadas)
+// adapta status do backend (PENDENTE/APROVADA/REJEITADA/REPROVADA) → frontend
+function adaptarStatusSolicitacao(valor: string): StatusSolicitacao {
+  switch (normalizar(valor)) {
+    case "aprovada": return "aprovada"
+    case "rejeitada":
+    case "reprovada": return "rejeitada"
+    default: return "pendente"
+  }
+}
 
 export const buscarSolicitacoes = async (
   filtros: { pagina?: number; status?: StatusSolicitacao | "" } = {}
 ): Promise<RespostaPaginada<Solicitacao>> => {
-  const { pagina = 1 } = filtros
-  // o backend ainda não expõe /solicitacoes; devolvemos vazio para não quebrar a tela
-  return paginarLocalmente<Solicitacao>([], pagina, 12)
+  const { pagina = 1, status = "" } = filtros
+  const porPagina = 12
+
+  // busca as 3 listas em paralelo
+  const [solicBruto, animaisBruto, usuariosBruto] = await Promise.all([
+    requisitar<any[]>("/solicitacoes"),
+    requisitar<any[]>("/animais"),
+    requisitar<any[]>("/usuarios"),
+  ])
+
+  // monta mapas por id para cruzamento rápido
+  const animais = (Array.isArray(animaisBruto) ? animaisBruto : []).map(adaptarAnimal)
+  const usuarios = (Array.isArray(usuariosBruto) ? usuariosBruto : []).map(adaptarUsuario)
+  const mapaAnimais = new Map(animais.map((a) => [String(a.id), a]))
+  const mapaUsuarios = new Map(usuarios.map((u) => [String(u.id), u]))
+
+  let solicitacoes = (Array.isArray(solicBruto) ? solicBruto : []).map((s): Solicitacao => ({
+    id: String(s.id_solicitacao),
+    animal: mapaAnimais.get(String(s.id_animal)) ?? ({ nome: "—", raca: "", fotos: [] } as any),
+    usuario: mapaUsuarios.get(String(s.id_usuario)) ?? ({ nome: "—", email: "" } as any),
+    status: adaptarStatusSolicitacao(s.status ?? ""),
+    mensagem: undefined,
+    criadaEm: s.data_solicitacao ?? new Date().toISOString(),
+    atualizadaEm: s.data_solicitacao ?? new Date().toISOString(),
+  }))
+
+  if (status) solicitacoes = solicitacoes.filter((s) => s.status === status)
+
+  return paginarLocalmente(solicitacoes, pagina, porPagina)
 }
 
-export const criarSolicitacao = (idAnimal: string, mensagem?: string) =>
+export const criarSolicitacao = (idUsuario: string, idAnimal: string) =>
   requisitar<Solicitacao>("/solicitacoes", {
     method: "POST",
-    body: JSON.stringify({ idAnimal, mensagem }),
+    body: JSON.stringify({ id_usuario: Number(idUsuario), id_animal: Number(idAnimal) }),
   })
 
-export const aprovarSolicitacao = (id: string) =>
-  requisitar<Solicitacao>(`/solicitacoes/${id}/aprovar`, { method: "POST" })
+// backend usa PUT /solicitacoes/:id com { status }
+export const aprovarSolicitacao = (id: string, idUsuario: string, idAnimal: string) =>
+  requisitar<Solicitacao>(`/solicitacoes/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ id_usuario: Number(idUsuario), id_animal: Number(idAnimal), status: "APROVADA" }),
+  })
 
-export const rejeitarSolicitacao = (id: string) =>
-  requisitar<Solicitacao>(`/solicitacoes/${id}/rejeitar`, { method: "POST" })
-
+export const rejeitarSolicitacao = (id: string, idUsuario: string, idAnimal: string) =>
+  requisitar<Solicitacao>(`/solicitacoes/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ id_usuario: Number(idUsuario), id_animal: Number(idAnimal), status: "REPROVADA" }),
+  })
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export const buscarEstatisticas = async (): Promise<EstatisticasDashboard> => {

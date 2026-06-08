@@ -1,36 +1,53 @@
-import { solicitacoes, aprovarSolicitacao, rejeitarSolicitacao } from "@/lib/api"
+"use client"
+
+import { useState } from "react"
+import { Check, X } from "lucide-react"
+import { useConsulta } from "@/hooks/useConsulta"
+import { buscarSolicitacoes, aprovarSolicitacao, rejeitarSolicitacao } from "@/lib/api"
 import type { StatusSolicitacao } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"
 import { formatarDataHora } from "@/lib/utils"
 
 const opcoesStatus = [
-  { valor: "",         rotulo: "Todas" },
-  { valor: "pendente", rotulo: "Pendentes" },
-  { valor: "aprovada", rotulo: "Aprovadas" },
-  { valor: "rejeitada",rotulo: "Rejeitadas" },
+  { valor: "",          rotulo: "Todas" },
+  { valor: "pendente",  rotulo: "Pendentes" },
+  { valor: "aprovada",  rotulo: "Aprovadas" },
+  { valor: "rejeitada", rotulo: "Rejeitadas" },
 ]
 
 export default function PaginaSolicitacoes() {
   const [status, setStatus] = useState<StatusSolicitacao | "">("")
   const [pagina, setPagina] = useState(1)
+  const [processando, setProcessando] = useState<string | null>(null)
 
   const { dados, carregando, recarregar } = useConsulta(
     () => buscarSolicitacoes({ pagina, status }),
     [pagina, status]
   )
 
-  const { executar: aprovar, carregando: aprovando } = useMutacao(aprovarSolicitacao)
-  const { executar: rejeitar, carregando: rejeitando } = useMutacao(rejeitarSolicitacao)
-
-  const handleAprovar = async (id: string) => {
-    await aprovar(id)
-    recarregar()
+  const handleAprovar = async (id: string, idUsuario: string, idAnimal: string) => {
+    setProcessando(id)
+    try {
+      await aprovarSolicitacao(id, idUsuario, idAnimal)
+      recarregar()
+    } catch (e) {
+      alert("Erro ao aprovar solicitação")
+    } finally {
+      setProcessando(null)
+    }
   }
 
-  const handleRejeitar = async (id: string) => {
-    await rejeitar(id)
-    recarregar()
+  const handleRejeitar = async (id: string, idUsuario: string, idAnimal: string) => {
+    setProcessando(id)
+    try {
+      await rejeitarSolicitacao(id, idUsuario, idAnimal)
+      recarregar()
+    } catch (e) {
+      alert("Erro ao rejeitar solicitação")
+    } finally {
+      setProcessando(null)
+    }
   }
 
   return (
@@ -57,15 +74,12 @@ export default function PaginaSolicitacoes() {
               {dados?.dados.map((solic) => (
                 <Card key={solic.id} className="p-4">
                   <div className="flex items-start gap-4">
-
-                    {/* Foto do animal */}
                     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
                       {solic.animal.fotos[0] && (
                         <img src={solic.animal.fotos[0]} alt={solic.animal.nome} className="h-full w-full object-cover" />
                       )}
                     </div>
 
-                    {/* Informações */}
                     <div className="min-w-0 flex-1">
                       <div className="mb-0.5 flex items-center gap-2">
                         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{solic.usuario.nome}</p>
@@ -74,27 +88,19 @@ export default function PaginaSolicitacoes() {
                         <Etiqueta variante={solic.status} />
                       </div>
                       <p className="text-xs text-zinc-400">{solic.usuario.email} · {solic.animal.raca}</p>
-
-                      {solic.mensagem && (
-                        <p className="mt-2 rounded-lg bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                          "{solic.mensagem}"
-                        </p>
-                      )}
-
                       <p className="mt-1 text-[11px] text-zinc-400">
                         {formatarDataHora(solic.criadaEm)}
                       </p>
                     </div>
 
-                    {/* Ações — só aparece se ainda estiver pendente */}
                     {solic.status === "pendente" && (
                       <div className="flex gap-2">
                         <Botao
                           variante="secundario"
                           tamanho="pequeno"
                           icone={<Check size={13} className="text-emerald-600" />}
-                          carregando={aprovando}
-                          onClick={() => handleAprovar(solic.id)}
+                          carregando={processando === solic.id}
+                          onClick={() => handleAprovar(solic.id, solic.usuario.id, solic.animal.id)}
                         >
                           Aprovar
                         </Botao>
@@ -102,8 +108,8 @@ export default function PaginaSolicitacoes() {
                           variante="perigo"
                           tamanho="pequeno"
                           icone={<X size={13} />}
-                          carregando={rejeitando}
-                          onClick={() => handleRejeitar(solic.id)}
+                          carregando={processando === solic.id}
+                          onClick={() => handleRejeitar(solic.id, solic.usuario.id, solic.animal.id)}
                         >
                           Rejeitar
                         </Botao>
