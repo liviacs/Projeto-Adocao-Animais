@@ -131,4 +131,32 @@ router.put('/:id', verificarToken, async (req, res) => {
   }
 });
 
+// Excluir usuário
+router.delete('/:id', verificarToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // verifica se o usuário existe
+    const existe = await db.query('SELECT id_usuario FROM usuarios WHERE id_usuario = $1', [id]);
+    if (existe.rows.length === 0) {
+      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    }
+
+    // verifica se há solicitações vinculadas (impede exclusão pra não perder histórico)
+    const vinculos = await db.query(
+      'SELECT 1 FROM solicitacoes WHERE id_usuario = $1 LIMIT 1',
+      [id]
+    );
+    if (vinculos.rows.length > 0) {
+      return res.status(409).json({
+        erro: 'Não é possível excluir: este usuário possui solicitações vinculadas.'
+      });
+    }
+
+    await db.query('DELETE FROM usuarios WHERE id_usuario = $1', [id]);
+    res.json({ mensagem: 'Usuário excluído com sucesso' });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
 module.exports = router;

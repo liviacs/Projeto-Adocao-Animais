@@ -240,6 +240,25 @@ export const buscarUsuario = async (id: string): Promise<Usuario> => {
 export const atualizarUsuario = (id: string, dados: Partial<Usuario>) =>
   requisitar<Usuario>(`/usuarios/${id}`, { method: "PUT", body: JSON.stringify(dados) })
 
+export const excluirUsuario = (id: string) =>
+  requisitar<{ mensagem: string }>(`/usuarios/${id}`, { method: "DELETE" })
+
+export const atualizarUsuarioAdmin = (
+  id: string,
+  dados: { nome?: string; email?: string; telefone?: string; tipo?: string }
+) =>
+  requisitar<any>(`/usuarios/${id}`, { method: "PUT", body: JSON.stringify(dados) })
+
+// atualiza o perfil enviando os campos no formato do backend (nome/email/telefone/senha)
+export const atualizarPerfil = (
+  id: string,
+  dados: { nome?: string; email?: string; telefone?: string; senha?: string }
+) =>
+  requisitar<any>(`/usuarios/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(dados),
+  })
+
 // adapta status do backend (PENDENTE/APROVADA/REJEITADA/REPROVADA) → frontend
 function adaptarStatusSolicitacao(valor: string): StatusSolicitacao {
   switch (normalizar(valor)) {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   PawPrint,
@@ -48,6 +48,7 @@ interface BarraLateralProps {
 
 export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [usuario, setUsuario] = useState<{ nome?: string; email?: string } | null>(null)
   useEffect(() => {
     const u = localStorage.getItem("usuario")
@@ -107,15 +108,21 @@ export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
       {/* Usuário logado */}
       <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
-            {iniciais(usuario?.nome ?? "US")}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-50">
-              {usuario?.nome ?? "Usuário"}
-            </p>
-            <p className="truncate text-[10px] text-zinc-400">{usuario?.email}</p>
-          </div>
+          <button
+            onClick={() => router.push("/perfil")}
+            className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg p-1 text-left hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            title="Meu perfil"
+          >
+            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+              {iniciais(usuario?.nome ?? "US")}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-50">
+                {usuario?.nome ?? "Usuário"}
+              </p>
+              <p className="truncate text-[10px] text-zinc-400">{usuario?.email}</p>
+            </div>
+          </button>
           <button
             onClick={() => {
               localStorage.removeItem("token")
