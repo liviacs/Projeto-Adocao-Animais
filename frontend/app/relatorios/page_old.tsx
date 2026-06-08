@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Download, FileText, BarChart2, Heart } from "lucide-react"
 import { baixarRelatorio } from "@/lib/api"
-import { Layout, BarraSuperior } from "@/components/animais/layout"
-import { Botao, Card } from "@/components/animais/ui"
+import { Layout, BarraSuperior } from "@/components/layout"
+import { Botao, Card } from "@/components/ui"
 
 const relatorios = [
   { id: "mensal"   as const, titulo: "Relatório mensal",        descricao: "Resumo de adoções, cadastros e atividades do mês.",     icone: FileText },
@@ -50,7 +50,7 @@ export default function PaginaRelatorios() {
                 onClick={() => handleBaixar(id)}
                 className="w-full justify-center"
               >
-                Exportar CSV
+                Exportar PDF
               </Botao>
             </Card>
           ))}

@@ -1,4 +1,4 @@
-import { solicitacoes, aprovarSolicitacao, rejeitarSolicitacao } from "@/lib/api"
+improt { solicitacoes, aprovarSolicitacao, rejeitarSolicitacao } from "@/lib/api"
 import type { StatusSolicitacao } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"

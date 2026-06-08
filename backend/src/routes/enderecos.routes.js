@@ -2,14 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
-
-function autenticado(req, res, next) {
-  if (req.session && req.session.usuario) return next();
-  return res.status(401).json({ erro: 'Não autenticado. Faça login primeiro.' });
-}
+const { verificarToken } = require('../auth');
 
 //Todos os endereços
-router.get('/', autenticado, async (req, res) => {
+router.get('/', verificarToken, async (req, res) => {
   try {
     const result = await db.query(`
       SELECT 
@@ -36,7 +32,7 @@ router.get('/', autenticado, async (req, res) => {
 });
 
 //Endereço específico
-router.get('/:id', autenticado, async (req, res) => {
+router.get('/:id', verificarToken, async (req, res) => {
   try {
     const id = req.params.id;
     const result = await db.query(`
@@ -64,42 +60,31 @@ router.get('/:id', autenticado, async (req, res) => {
   }
 });
 
-router.put('/:id', autenticado, async (req, res) => {
+router.post('/:id', verificarToken, async (req, res) => {
   try {
-    const id = req.params.id;
-    const { nome, email, senha, telefone, tipo } = req.body;
-    const usuario = await db.query(
-      'SELECT * FROM usuarios WHERE id_usuario = $1',
-      [id]
-    );
-    if (usuario.rows.length === 0) {
-      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    const idUsuario = req.params.id;
+    const { cep, rua, numero, bairro, cidade, estado } = req.body;
+
+    if (!cep || !rua || !numero || !bairro || !cidade || !estado) {
+      return res.status(400).json({ 
+        erro: 'cep, rua, número, bairro, cidade e estado são obrigatórios.' 
+      });
     }
-    const dadosAtuais = usuario.rows[0];
-    let senhaFinal = dadosAtuais.senha;
-    if (senha) {
-      senhaFinal = await bcrypt.hash(senha, 10);
-    }
+
     const result = await db.query(
-      `UPDATE usuarios
-       SET nome = $1,
-           email = $2,
-           senha = $3,
-           telefone = $4,
-           tipo = $5
-       WHERE id_usuario = $6
-       RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro`,
-      [
-        nome ?? dadosAtuais.nome,
-        email ?? dadosAtuais.email,
-        senhaFinal,
-        telefone ?? dadosAtuais.telefone,
-        tipo ?? dadosAtuais.tipo,
-        id
-      ]
+      `INSERT INTO enderecos 
+        (id_usuario, cep, rua, numero, bairro, cidade, estado)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [idUsuario, cep, rua, numero, bairro, cidade, estado]
     );
-    res.json(result.rows[0]);
+
+    res.status(201).json({
+      message: 'Endereço adicionado com sucesso',
+      endereco: result.rows[0]
+    });
   } catch (err) {
+    console.error('Erro ao adicionar endereço:', err);
     res.status(500).json({ erro: err.message });
   }
 });

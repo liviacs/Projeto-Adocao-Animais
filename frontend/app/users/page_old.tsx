@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useConsulta } from "@/hooks/useConsulta"
 import { buscarUsuarios } from "@/lib/api"
-import { Layout, BarraSuperior } from "@/components/animais/layout"
-import { Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"
+import { Layout, BarraSuperior } from "@/components/layout"
+import { Card, Etiqueta, Carregando, Vazio } from "@/components/ui"
 import { formatarData, iniciais } from "@/lib/utils"
 
 export default function PaginaUsuarios() {

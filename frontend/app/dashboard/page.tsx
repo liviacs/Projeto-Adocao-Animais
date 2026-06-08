@@ -11,11 +11,11 @@ export default function PaginaDashboard() {
   const { dados: stats, carregando: carregandoStats } = useConsulta(buscarEstatisticas)
 
   const { dados: animais, carregando: carregandoAnimais } = useConsulta(() =>
-    buscarAnimais({ porPagina: 5 })
+    buscarAnimais()
   )
 
   const { dados: solicitacoes, carregando: carregandoSolic } = useConsulta(() =>
-    buscarSolicitacoes({ status: "pendente", porPagina: 4 })
+    buscarSolicitacoes()
   )
 
   return (
