@@ -3,7 +3,24 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { PawPrint } from "lucide-react"
-import { Botao, Campo } from "@/components/animais/ui"
+import { Botao, Campo, Seletor } from "@/components/animais/ui"
+
+function formatarCpf(v: string): string {
+  return v.replace(/\D/g, "").slice(0, 11)
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+}
+
+const opcoesOrientacao = [
+  { valor: "", rotulo: "Selecione..." },
+  { valor: "Heterossexual", rotulo: "Heterossexual" },
+  { valor: "Homossexual", rotulo: "Homossexual" },
+  { valor: "Bissexual", rotulo: "Bissexual" },
+  { valor: "Outro", rotulo: "Outro" },
+  { valor: "Prefiro não informar", rotulo: "Prefiro não informar" },
+]
+
 
 export default function PaginaLogin() {
   const router = useRouter()
@@ -21,6 +38,8 @@ export default function PaginaLogin() {
   const [cTelefone, setCTelefone] = useState("")
   const [cSenha, setCSenha] = useState("")
   const [cConfirma, setCConfirma] = useState("")
+  const [cCpf, setCCpf] = useState("")
+  const [cOrientacao, setCOrientacao] = useState("")
   const [erroCad, setErroCad] = useState("")
   const [criando, setCriando] = useState(false)
 
@@ -67,13 +86,17 @@ export default function PaginaLogin() {
       setErroCad("As senhas não coincidem.")
       return
     }
+    if (cCpf.replace(/\D/g, "").length !== 11) {
+      setErroCad("Informe um CPF válido (11 dígitos).")
+      return
+    }
     setCriando(true)
     try {
       // cria o usuário SEM enviar tipo → backend define como ADOTANTE
       const resp = await fetch("http://localhost:3005/api/usuarios/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome: cNome, email: cEmail, telefone: cTelefone, senha: cSenha }),
+        body: JSON.stringify({ nome: cNome, email: cEmail, telefone: cTelefone, senha: cSenha, cpf: cCpf, orientacao_sexual: cOrientacao || null }),
       })
       const data = await resp.json()
       if (!resp.ok) {
@@ -128,6 +151,11 @@ export default function PaginaLogin() {
             <Campo id="cNome" rotulo="Nome" placeholder="Seu nome" value={cNome} onChange={(e) => setCNome(e.target.value)} required />
             <Campo id="cEmail" rotulo="Email" type="email" placeholder="seu@email.com" value={cEmail} onChange={(e) => setCEmail(e.target.value)} required />
             <Campo id="cTelefone" rotulo="Telefone" placeholder="(opcional)" value={cTelefone} onChange={(e) => setCTelefone(e.target.value)} />
+            <Campo id="cCpf" rotulo="CPF" placeholder="000.000.000-00" value={cCpf} onChange={(e) => setCCpf(formatarCpf(e.target.value))} required />
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Orientação sexual</label>
+              <Seletor opcoes={opcoesOrientacao} value={cOrientacao} onChange={(e) => setCOrientacao(e.target.value)} className="w-full py-2 text-sm" />
+            </div>
             <Campo id="cSenha" rotulo="Senha" type="password" placeholder="Mínimo 6 caracteres" value={cSenha} onChange={(e) => setCSenha(e.target.value)} required />
             <Campo id="cConfirma" rotulo="Confirmar senha" type="password" placeholder="••••••••" value={cConfirma} onChange={(e) => setCConfirma(e.target.value)} required />
             {erroCad && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-950 dark:text-red-400">{erroCad}</p>}

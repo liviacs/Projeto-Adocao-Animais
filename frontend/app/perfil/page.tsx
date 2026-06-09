@@ -4,7 +4,23 @@ import { useState, useEffect } from "react"
 import { User, Lock } from "lucide-react"
 import { atualizarPerfil } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
-import { Botao, Card, Campo } from "@/components/animais/ui"
+import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
+
+function formatarCpf(v: string): string {
+  return v.replace(/\D/g, "").slice(0, 11)
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+}
+
+const opcoesOrientacao = [
+  { valor: "", rotulo: "Selecione..." },
+  { valor: "Heterossexual", rotulo: "Heterossexual" },
+  { valor: "Homossexual", rotulo: "Homossexual" },
+  { valor: "Bissexual", rotulo: "Bissexual" },
+  { valor: "Outro", rotulo: "Outro" },
+  { valor: "Prefiro não informar", rotulo: "Prefiro não informar" },
+]
 
 export default function PaginaPerfil() {
   const [id, setId] = useState("")
@@ -12,6 +28,9 @@ export default function PaginaPerfil() {
   const [email, setEmail] = useState("")
   const [telefone, setTelefone] = useState("")
   const [tipo, setTipo] = useState("")
+  const [cpf, setCpf] = useState("")
+  const [orientacao, setOrientacao] = useState("")
+  const [qtdAdocoes, setQtdAdocoes] = useState(0)
 
   const [salvandoDados, setSalvandoDados] = useState(false)
   const [msgDados, setMsgDados] = useState("")
@@ -32,6 +51,9 @@ export default function PaginaPerfil() {
         setEmail(usuario.email ?? "")
         setTelefone(usuario.telefone ?? "")
         setTipo(usuario.tipo ?? "")
+        setCpf(usuario.cpf ?? "")
+        setOrientacao(usuario.orientacaoSexual ?? usuario.orientacao_sexual ?? "")
+        setQtdAdocoes(usuario.qtdAdocoes ?? usuario.qtd_adocoes ?? 0)
       } catch {}
     }
   }, [])
@@ -44,10 +66,10 @@ export default function PaginaPerfil() {
     }
     setSalvandoDados(true)
     try {
-      await atualizarPerfil(id, { nome, email, telefone })
+      await atualizarPerfil(id, { nome, email, telefone, cpf, orientacao_sexual: orientacao })
       // atualiza o localStorage pra refletir as mudanças
       const usuario = JSON.parse(localStorage.getItem("usuario") || "{}")
-      localStorage.setItem("usuario", JSON.stringify({ ...usuario, nome, email, telefone }))
+      localStorage.setItem("usuario", JSON.stringify({ ...usuario, nome, email, telefone, cpf, orientacaoSexual: orientacao }))
       setMsgDados("Dados atualizados com sucesso!")
     } catch (e) {
       setMsgDados(e instanceof Error ? e.message : "Erro ao atualizar dados")
@@ -100,6 +122,15 @@ export default function PaginaPerfil() {
             <Campo id="nome" rotulo="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
             <Campo id="email" rotulo="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             <Campo id="telefone" rotulo="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+            <Campo id="cpf" rotulo="CPF" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(formatarCpf(e.target.value))} />
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Orientação sexual</label>
+              <Seletor opcoes={opcoesOrientacao} value={orientacao} onChange={(e) => setOrientacao(e.target.value)} className="w-full py-2 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Adoções realizadas</label>
+              <p className="rounded-lg bg-zinc-100 px-3 py-2 text-sm text-zinc-500 dark:bg-zinc-800">{qtdAdocoes}</p>
+            </div>
 
             <div>
               <label className="mb-1 block text-xs font-medium text-zinc-500">Tipo de conta</label>

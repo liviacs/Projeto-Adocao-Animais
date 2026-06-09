@@ -15,6 +15,9 @@ router.get('/', verificarToken, async (req, res) => {
         u.telefone, 
         u.tipo, 
         u.data_cadastro,
+        u.cpf,
+        u.orientacao_sexual,
+        u.qtd_adocoes,
         e.id_endereco,
         e.cep,
         e.rua,
@@ -43,6 +46,9 @@ router.get('/:id', verificarToken, async (req, res) => {
         u.telefone, 
         u.tipo, 
         u.data_cadastro,
+        u.cpf,
+        u.orientacao_sexual,
+        u.qtd_adocoes,
         e.id_endereco,
         e.cep,
         e.rua,
@@ -63,7 +69,7 @@ router.get('/:id', verificarToken, async (req, res) => {
 // Cadastro público (sem token) — sempre cria ADOTANTE
 router.post('/registro', async (req, res) => {
   try {
-    const { nome, email, senha, telefone } = req.body;
+    const { nome, email, senha, telefone, cpf, orientacao_sexual } = req.body;
     if (!nome || !email || !senha) {
       return res.status(400).json({ erro: 'Nome, email e senha são obrigatórios' });
     }
@@ -74,13 +80,16 @@ router.post('/registro', async (req, res) => {
     }
     const hashSenha = await bcrypt.hash(senha, 10);
     const result = await db.query(
-      `INSERT INTO usuarios (nome, email, senha, telefone, tipo)
-       VALUES ($1, $2, $3, $4, 'ADOTANTE')
-       RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro`,
-      [nome, email, hashSenha, telefone || null]
+      `INSERT INTO usuarios (nome, email, senha, telefone, tipo, cpf, orientacao_sexual)
+       VALUES ($1, $2, $3, $4, 'ADOTANTE', $5, $6)
+       RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro, cpf, orientacao_sexual`,
+      [nome, email, hashSenha, telefone || null, cpf || null, orientacao_sexual || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ erro: 'CPF ou email já cadastrado' });
+    }
     res.status(500).json({ erro: err.message });
   }
 });
@@ -88,7 +97,7 @@ router.post('/registro', async (req, res) => {
 //Criar usuário
 router.post('/', verificarToken, async (req, res) => {
   try {
-    const { nome, email, senha, telefone, tipo } = req.body;
+    const { nome, email, senha, telefone, tipo, cpf, orientacao_sexual } = req.body;
     if (!nome || !email || !senha) {
       return res.status(400).json({
         erro: 'Nome, email e senha são obrigatórios'
@@ -119,7 +128,7 @@ router.post('/', verificarToken, async (req, res) => {
 router.put('/:id', verificarToken, async (req, res) => {
   try {
     const id = req.params.id;
-    const { nome, email, senha, telefone, tipo } = req.body;
+    const { nome, email, senha, telefone, tipo, cpf, orientacao_sexual } = req.body;
     const usuario = await db.query(
       'SELECT * FROM usuarios WHERE id_usuario = $1',
       [id]
@@ -138,20 +147,27 @@ router.put('/:id', verificarToken, async (req, res) => {
            email = $2,
            senha = $3,
            telefone = $4,
-           tipo = $5
-       WHERE id_usuario = $6
-       RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro`,
+           tipo = $5,
+           cpf = $6,
+           orientacao_sexual = $7
+       WHERE id_usuario = $8
+       RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro, cpf, orientacao_sexual`,
       [
         nome ?? dadosAtuais.nome,
         email ?? dadosAtuais.email,
         senhaFinal,
         telefone ?? dadosAtuais.telefone,
         tipo ?? dadosAtuais.tipo,
+        cpf ?? dadosAtuais.cpf,
+        orientacao_sexual ?? dadosAtuais.orientacao_sexual,
         id
       ]
     );
     res.json(result.rows[0]);
   } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ erro: 'CPF já cadastrado por outro usuário' });
+    }
     res.status(500).json({ erro: err.message });
   }
 });

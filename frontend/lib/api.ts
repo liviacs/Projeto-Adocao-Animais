@@ -125,6 +125,9 @@ function adaptarUsuario(bruto: any): Usuario {
     perfil: adaptarPerfil(bruto.tipo ?? bruto.perfil ?? ""),
     telefone: bruto.telefone ?? undefined,
     ativo: bruto.ativo ?? true, // backend não informa; assumimos ativo
+    cpf: bruto.cpf ?? undefined,
+    orientacaoSexual: bruto.orientacao_sexual ?? undefined,
+    qtdAdocoes: bruto.qtd_adocoes ?? 0,
     criadoEm: bruto.data_cadastro ?? bruto.criadoEm ?? new Date().toISOString(),
   }
 }
@@ -254,7 +257,7 @@ export const atualizarUsuarioAdmin = (
 // atualiza o perfil enviando os campos no formato do backend (nome/email/telefone/senha)
 export const atualizarPerfil = (
   id: string,
-  dados: { nome?: string; email?: string; telefone?: string; senha?: string }
+  dados: { nome?: string; email?: string; telefone?: string; senha?: string; cpf?: string; orientacao_sexual?: string }
 ) =>
   requisitar<any>(`/usuarios/${id}`, {
     method: "PUT",

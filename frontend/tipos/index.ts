@@ -33,6 +33,9 @@ export interface Usuario {
   perfil: PerfilUsuario
   telefone?: string
   ativo: boolean
+  cpf?: string
+  orientacaoSexual?: string
+  qtdAdocoes?: number
   criadoEm: string
 }
 
