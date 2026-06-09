@@ -23,7 +23,7 @@ router.get('/', verificarToken, async (req, res) => {
         e.cidade,
         e.estado
       FROM usuarios u
-      INNER JOIN enderecos e ON u.id_usuario = e.id_usuario
+      LEFT JOIN enderecos e ON u.id_usuario = e.id_usuario
     `);
     res.json(result.rows);
   } catch (err) {
@@ -55,6 +55,31 @@ router.get('/:id', verificarToken, async (req, res) => {
       WHERE u.id_usuario = $1`, [id]
     );
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+// Cadastro público (sem token) — sempre cria ADOTANTE
+router.post('/registro', async (req, res) => {
+  try {
+    const { nome, email, senha, telefone } = req.body;
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ erro: 'Nome, email e senha são obrigatórios' });
+    }
+    // verifica se o email já existe
+    const existe = await db.query('SELECT id_usuario FROM usuarios WHERE email = $1', [email]);
+    if (existe.rows.length > 0) {
+      return res.status(409).json({ erro: 'Este email já está cadastrado' });
+    }
+    const hashSenha = await bcrypt.hash(senha, 10);
+    const result = await db.query(
+      `INSERT INTO usuarios (nome, email, senha, telefone, tipo)
+       VALUES ($1, $2, $3, $4, 'ADOTANTE')
+       RETURNING id_usuario, nome, email, telefone, tipo, data_cadastro`,
+      [nome, email, hashSenha, telefone || null]
+    );
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ erro: err.message });
   }

@@ -23,7 +23,7 @@ router.get('/', verificarToken, async (req, res) => {
         e.cidade,
         e.estado
       FROM usuarios u
-      INNER JOIN enderecos e ON u.id_usuario = e.id_usuario
+      LEFT JOIN enderecos e ON u.id_usuario = e.id_usuario
     `);
     res.json(result.rows);
   } catch (err) {
