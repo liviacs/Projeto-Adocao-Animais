@@ -41,6 +41,8 @@ export default function PaginaNovoAnimal() {
   const [condSaude, setCondSaude] = useState("")
   const [descricao, setDescricao] = useState("")
   const [status, setStatus] = useState("DISPONIVEL")
+  const [castrado, setCastrado] = useState(false)
+  const [chipado, setChipado] = useState(false)
 
   const [foto, setFoto] = useState<File | null>(null)
   const [preview, setPreview] = useState<string>("")
@@ -75,6 +77,8 @@ export default function PaginaNovoAnimal() {
         cond_saude: condSaude,
         descricao,
         status,
+        castrado,
+        chipado,
       } as any)
 
       // 2. se escolheu foto, envia (o backend devolve o animal com id_animal)
@@ -147,6 +151,16 @@ export default function PaginaNovoAnimal() {
             </div>
             <div className="col-span-2">
               <Campo id="condSaude" rotulo="Condição de saúde" value={condSaude} onChange={(e) => setCondSaude(e.target.value)} />
+            </div>
+            <div className="col-span-2 flex gap-6">
+              <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <input type="checkbox" checked={castrado} onChange={(e) => setCastrado(e.target.checked)} className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" />
+                Castrado
+              </label>
+              <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <input type="checkbox" checked={chipado} onChange={(e) => setChipado(e.target.checked)} className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" />
+                Chipado
+              </label>
             </div>
             <div className="col-span-2">
               <label className="mb-1 block text-xs font-medium text-zinc-500">Descrição</label>

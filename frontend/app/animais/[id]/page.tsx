@@ -92,6 +92,7 @@ export default function PaginaDetalheAnimal() {
                 <Campo rotulo="Sexo" valor={animal.sexo} />
                 <Campo rotulo="Vacinado" valor={animal.vacinado ? "Sim" : "Não"} />
                 <Campo rotulo="Castrado" valor={animal.castrado ? "Sim" : "Não"} />
+                <Campo rotulo="Chipado" valor={animal.chipado ? "Sim" : "Não"} />
               </div>
 
               {animal.descricao && (

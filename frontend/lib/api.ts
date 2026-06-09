@@ -109,7 +109,8 @@ function adaptarAnimal(bruto: any): Animal {
   : [],
     peso: bruto.peso != null ? Number(bruto.peso) : undefined,
     vacinado: saude.includes("vacinad"),
-    castrado: saude.includes("castrad"),
+    castrado: bruto.castrado ?? saude.includes("castrad"),
+    chipado: bruto.chipado ?? false,
     criadoEm: bruto.data_cadastro ?? bruto.criadoEm ?? new Date().toISOString(),
     atualizadoEm: bruto.atualizadoEm ?? bruto.data_cadastro ?? new Date().toISOString(),
   }

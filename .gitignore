@@ -97,3 +97,4 @@ desktop.ini
 *.pem
 *.key
 *.cert
+database/backup_antes_reset.sql

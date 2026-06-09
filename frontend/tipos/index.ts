@@ -21,6 +21,7 @@ export interface Animal {
   peso?: number
   vacinado: boolean
   castrado: boolean
+  chipado: boolean
   criadoEm: string
   atualizadoEm: string
 }

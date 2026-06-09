@@ -21,12 +21,11 @@ const upload = multer({ storage: armazenamento });
 //Todos os animais
 router.get('/', verificarToken, async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, f.caminho_foto, f.id_foto
+    const result = await db.query(
+      `SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, a.castrado, a.chipado, a.data_cadastro, a.qtd_adocoes, f.caminho_foto, f.id_foto
       FROM animais a
-      LEFT JOIN fotos_animais f ON a.id_animal = f.id_animal
-    `);
-
+      LEFT JOIN fotos_animais f ON a.id_animal = f.id_animal`,
+    );
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ erro: err.message });
@@ -39,13 +38,12 @@ router.get('/:id', verificarToken, async (req, res) => {
     const id = req.params.id;
 
     const result = await db.query(
-      `SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, f.caminho_foto, f.id_foto
+      `SELECT a.id_animal, a.nome, a.especie, a.raca, a.idade, a.sexo, a.porte, a.cond_saude, a.descricao, a.status, a.castrado, a.chipado, a.data_cadastro, a.qtd_adocoes, f.caminho_foto, f.id_foto
       FROM animais a
       LEFT JOIN fotos_animais f ON a.id_animal = f.id_animal
       WHERE a.id_animal = $1`,
       [id]
     );
-
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ erro: error.message });
@@ -54,12 +52,12 @@ router.get('/:id', verificarToken, async (req, res) => {
 
 router.post('/', verificarToken, verificarAdmin, async (req, res) => {
   try {
-    const { nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status } = req.body;
+    const { nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status, castrado, chipado } = req.body;
     const result = await db.query(
-      `INSERT INTO animais (nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO animais (nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status, castrado, chipado)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [nome, especie, raca, idade, sexo, porte || null, cond_saude || null, descricao, status || 'DISPONIVEL']
+      [nome, especie, raca, idade, sexo, porte || null, cond_saude || null, descricao, status || 'DISPONIVEL', castrado || false, chipado || false]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -71,14 +69,14 @@ router.post('/', verificarToken, verificarAdmin, async (req, res) => {
 router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
   try {
     const id = req.params.id;
-    const {nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status} = req.body;
+    const {nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status, castrado, chipado} = req.body;
     const result = await db.query(
       `UPDATE animais
        SET nome=$1, especie=$2, raca=$3, idade=$4, sexo=$5, porte=$6,
-           cond_saude=$7, descricao=$8, status=$9
-       WHERE id_animal=$10
+           cond_saude=$7, descricao=$8, status=$9, castrado=$10, chipado=$11
+       WHERE id_animal=$12
        RETURNING *`,
-      [nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status, id]
+      [nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status, castrado || false, chipado || false, id]
     );
     res.json(result.rows[0]);
   } catch (error) {
