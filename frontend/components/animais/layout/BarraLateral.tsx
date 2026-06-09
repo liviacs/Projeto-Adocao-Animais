@@ -20,7 +20,7 @@ const itensNav = [
   {
     secao: "Principal",
     links: [
-      { href: "/dashboard",     rotulo: "Dashboard",      icone: LayoutDashboard },
+      { href: "/dashboard",     rotulo: "Dashboard",      icone: LayoutDashboard, admin: true },
       { href: "/animais",       rotulo: "Animais",        icone: PawPrint },
       { href: "/solicitacoes",  rotulo: "Solicitações",   icone: ClipboardList, mostraBadge: true },
     ],
@@ -28,15 +28,15 @@ const itensNav = [
   {
     secao: "Gestão",
     links: [
-      { href: "/usuarios",   rotulo: "Usuários",    icone: Users },
-      { href: "/relatorios", rotulo: "Relatórios",  icone: BarChart2 },
+      { href: "/usuarios",   rotulo: "Usuários",    icone: Users, admin: true },
+      { href: "/relatorios", rotulo: "Relatórios",  icone: BarChart2, admin: true },
     ],
   },
   {
     secao: "Sistema",
     links: [
       { href: "/notificacoes", rotulo: "Notificações",    icone: Bell },
-      { href: "/logs",         rotulo: "Logs do sistema", icone: ScrollText },
+      { href: "/logs",         rotulo: "Logs do sistema", icone: ScrollText, admin: true },
       { href: "/configuracoes",rotulo: "Configurações",   icone: Settings },
     ],
   },
@@ -49,13 +49,15 @@ interface BarraLateralProps {
 export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [usuario, setUsuario] = useState<{ nome?: string; email?: string } | null>(null)
+  const [usuario, setUsuario] = useState<{ nome?: string; email?: string; tipo?: string } | null>(null)
   useEffect(() => {
     const u = localStorage.getItem("usuario")
     if (u) {
       try { setUsuario(JSON.parse(u)) } catch {}
     }
   }, [])
+
+  const ehAdmin = usuario?.tipo === "ADMIN"
 
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
@@ -73,12 +75,15 @@ export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
 
       {/* Navegação */}
       <nav className="flex-1 overflow-y-auto px-2 py-1">
-        {itensNav.map(({ secao, links }) => (
+        {itensNav.map(({ secao, links }) => {
+          const linksVisiveis = links.filter((l: any) => !l.admin || ehAdmin)
+          if (linksVisiveis.length === 0) return null
+          return (
           <div key={secao} className="mb-3">
             <p className="mb-1 px-2 text-[10px] font-medium uppercase tracking-widest text-zinc-400">
               {secao}
             </p>
-            {links.map(({ href, rotulo, icone: Icone, mostraBadge }) => {
+            {linksVisiveis.map(({ href, rotulo, icone: Icone, mostraBadge }) => {
               const ativo = pathname.startsWith(href)
               return (
                 <Link
@@ -102,7 +107,8 @@ export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
               )
             })}
           </div>
-        ))}
+          )
+        })}
       </nav>
 
       {/* Usuário logado */}

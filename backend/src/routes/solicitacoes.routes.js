@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const moment = require('moment');
-const { verificarToken } = require('../auth');
+const { verificarToken, verificarAdmin } = require('../auth');
 
 //Todos as solicitações
 router.get('/', verificarToken, async (req, res) => {
@@ -90,7 +90,7 @@ router.post('/', verificarToken, async (req, res) => {
 });
 
 //Atualizar solicitação (aprovar / reprovar)
-router.put('/:id', verificarToken, async (req, res) => {
+router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
   const client = await db.connect();
 
   try {

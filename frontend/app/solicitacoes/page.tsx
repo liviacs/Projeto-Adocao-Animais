@@ -1,5 +1,6 @@
 "use client"
 
+import { useUsuario } from "@/hooks/useUsuario"
 import { useState } from "react"
 import { Check, X, Plus, ArrowLeft } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
@@ -24,6 +25,7 @@ const motivosRejeicao = [
 ]
 
 export default function PaginaSolicitacoes() {
+  const { ehAdmin } = useUsuario()
   const [status, setStatus] = useState<StatusSolicitacao | "">("")
   const [pagina, setPagina] = useState(1)
   const [processando, setProcessando] = useState<string | null>(null)
@@ -153,7 +155,7 @@ export default function PaginaSolicitacoes() {
                       <p className="text-xs text-zinc-400">{solic.usuario.email} · {solic.animal.raca}</p>
                       <p className="mt-1 text-[11px] text-zinc-400">{formatarDataHora(solic.criadaEm)}</p>
                     </div>
-                    {solic.status === "pendente" && (
+                    {ehAdmin && solic.status === "pendente" && (
                       <div className="flex gap-2">
                         <Botao variante="secundario" tamanho="pequeno" icone={<Check size={13} className="text-emerald-600" />} carregando={processando === solic.id} onClick={() => handleAprovar(solic.id, solic.usuario.id, solic.animal.id)}>Aprovar</Botao>
                         <Botao variante="perigo" tamanho="pequeno" icone={<X size={13} />} onClick={() => setSolicRejeitar(solic)}>Rejeitar</Botao>

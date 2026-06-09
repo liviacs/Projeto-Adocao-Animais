@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const { verificarToken } = require('../auth');
+const { verificarToken, verificarAdmin } = require('../auth');
 const multer = require('multer');
 const path = require('path');
 
@@ -52,7 +52,7 @@ router.get('/:id', verificarToken, async (req, res) => {
   }
 });
 
-router.post('/', verificarToken, async (req, res) => {
+router.post('/', verificarToken, verificarAdmin, async (req, res) => {
   try {
     const { nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status } = req.body;
     const result = await db.query(
@@ -68,7 +68,7 @@ router.post('/', verificarToken, async (req, res) => {
 });
 
 //Atualizar animal
-router.put('/:id', verificarToken, async (req, res) => {
+router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const {nome, especie, raca, idade, sexo, porte, cond_saude, descricao, status} = req.body;

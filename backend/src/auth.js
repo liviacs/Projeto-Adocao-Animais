@@ -21,4 +21,12 @@ const verificarToken = (req, res, next) => {
   }
 };
 
-module.exports = { verificarToken, SECRET_KEY };
+// Middleware para verificar se é ADMIN (usar sempre DEPOIS de verificarToken)
+const verificarAdmin = (req, res, next) => {
+  if (!req.usuario || req.usuario.tipo !== 'ADMIN') {
+    return res.status(403).json({ erro: 'Acesso restrito a administradores' });
+  }
+  next();
+};
+
+module.exports = { verificarToken, verificarAdmin, SECRET_KEY };

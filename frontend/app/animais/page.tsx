@@ -1,5 +1,6 @@
 "use client"
 
+import { useUsuario } from "@/hooks/useUsuario"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, PawPrint } from "lucide-react"
@@ -28,6 +29,7 @@ const opcoesEspecie = [
 
 export default function PaginaAnimais() {
   const router = useRouter()
+  const { ehAdmin } = useUsuario()
   const [busca, setBusca]     = useState("")
   const [status, setStatus]   = useState<StatusAnimal | "">("")
   const [especie, setEspecie] = useState<EspecieAnimal | "">("")
@@ -51,9 +53,11 @@ export default function PaginaAnimais() {
         titulo="Animais"
         aoBuscar={(v) => { setBusca(v); setPagina(1) }}
         acao={
-          <Botao icone={<Plus size={14} />} onClick={() => router.push("/animais/novo")}>
-            Cadastrar animal
-          </Botao>
+          ehAdmin ? (
+            <Botao icone={<Plus size={14} />} onClick={() => router.push("/animais/novo")}>
+              Cadastrar animal
+            </Botao>
+          ) : undefined
         }
       />
 
@@ -88,9 +92,11 @@ export default function PaginaAnimais() {
             titulo="Nenhum animal encontrado"
             descricao="Tente mudar os filtros ou cadastre um novo animal."
             acao={
-              <Botao icone={<Plus size={14} />} onClick={() => router.push("/animais/novo")}>
-                Cadastrar animal
-              </Botao>
+              ehAdmin ? (
+                <Botao icone={<Plus size={14} />} onClick={() => router.push("/animais/novo")}>
+                  Cadastrar animal
+                </Botao>
+              ) : undefined
             }
           />
         ) : (
