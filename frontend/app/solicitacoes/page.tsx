@@ -25,7 +25,7 @@ const motivosRejeicao = [
 ]
 
 export default function PaginaSolicitacoes() {
-  const { ehAdmin } = useUsuario()
+  const { usuario, ehAdmin } = useUsuario()
   const [status, setStatus] = useState<StatusSolicitacao | "">("")
   const [pagina, setPagina] = useState(1)
   const [processando, setProcessando] = useState<string | null>(null)
@@ -40,8 +40,8 @@ export default function PaginaSolicitacoes() {
   const [rejeitando, setRejeitando] = useState(false)
 
   const { dados, carregando, recarregar } = useConsulta(
-    () => buscarSolicitacoes({ pagina, status }),
-    [pagina, status]
+    () => buscarSolicitacoes({ pagina, status, idUsuario: ehAdmin ? undefined : String(usuario?.id ?? "") }),
+    [pagina, status, ehAdmin, usuario?.id]
   )
 
   const { dados: animaisDisp } = useConsulta(

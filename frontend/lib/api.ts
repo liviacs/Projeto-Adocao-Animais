@@ -270,9 +270,9 @@ function adaptarStatusSolicitacao(valor: string): StatusSolicitacao {
 }
 
 export const buscarSolicitacoes = async (
-  filtros: { pagina?: number; status?: StatusSolicitacao | "" } = {}
+  filtros: { pagina?: number; status?: StatusSolicitacao | ""; idUsuario?: string } = {}
 ): Promise<RespostaPaginada<Solicitacao>> => {
-  const { pagina = 1, status = "" } = filtros
+  const { pagina = 1, status = "", idUsuario } = filtros
   const porPagina = 12
 
   // busca as 3 listas em paralelo
@@ -299,6 +299,7 @@ export const buscarSolicitacoes = async (
   }))
 
   if (status) solicitacoes = solicitacoes.filter((s) => s.status === status)
+  if (idUsuario) solicitacoes = solicitacoes.filter((s) => String(s.usuario.id) === String(idUsuario))
 
   return paginarLocalmente(solicitacoes, pagina, porPagina)
 }
