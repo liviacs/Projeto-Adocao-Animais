@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Upload } from "lucide-react"
-import { criarAnimal, enviarFotoAnimal } from "@/lib/api"
+import { criarAnimal, enviarFotoAnimal, salvarVacinas } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
 
@@ -29,6 +29,22 @@ const opcoesStatus = [
   { valor: "ADOTADO",     rotulo: "Adotado" },
 ]
 
+const vacinasPorEspecie: Record<string, { campo: string; rotulo: string }[]> = {
+  Cachorro: [
+    { campo: "antirrabica", rotulo: "Antirrábica" },
+    { campo: "v8", rotulo: "V8" },
+    { campo: "v10", rotulo: "V10" },
+    { campo: "giardia", rotulo: "Giárdia" },
+    { campo: "leishmaniose", rotulo: "Leishmaniose" },
+  ],
+  Gato: [
+    { campo: "antirrabica", rotulo: "Antirrábica" },
+    { campo: "triplice_felina", rotulo: "Tríplice felina" },
+    { campo: "quadrupla_felina", rotulo: "Quádrupla felina" },
+    { campo: "giardia", rotulo: "Giárdia" },
+  ],
+}
+
 export default function PaginaNovoAnimal() {
   const router = useRouter()
 
@@ -43,7 +59,7 @@ export default function PaginaNovoAnimal() {
   const [status, setStatus] = useState("DISPONIVEL")
   const [castrado, setCastrado] = useState(false)
   const [chipado, setChipado] = useState(false)
-
+  const [vacinas, setVacinas] = useState<Record<string, string>>({})
   const [foto, setFoto] = useState<File | null>(null)
   const [preview, setPreview] = useState<string>("")
 
@@ -85,6 +101,11 @@ export default function PaginaNovoAnimal() {
       const idNovo = animal?.id_animal ?? animal?.id
       if (foto && idNovo) {
         await enviarFotoAnimal(String(idNovo), foto)
+      }
+
+      // salva vacinas se for cão/gato e houver alguma data preenchida
+      if (vacinasPorEspecie[especie] && Object.values(vacinas).some((v) => v)) {
+        await salvarVacinas(String(idNovo), vacinas)
       }
 
       // 3. volta pra lista
@@ -162,6 +183,26 @@ export default function PaginaNovoAnimal() {
                 Chipado
               </label>
             </div>
+
+            {vacinasPorEspecie[especie] && (
+              <div className="col-span-2">
+                <label className="mb-2 block text-xs font-medium text-zinc-500">Carteira de vacinação</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {vacinasPorEspecie[especie].map((v) => (
+                    <div key={v.campo}>
+                      <label className="mb-1 block text-xs text-zinc-400">{v.rotulo}</label>
+                      <input
+                        type="date"
+                        value={vacinas[v.campo] ?? ""}
+                        onChange={(e) => setVacinas({ ...vacinas, [v.campo]: e.target.value })}
+                        className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="col-span-2">
               <label className="mb-1 block text-xs font-medium text-zinc-500">Descrição</label>
               <textarea

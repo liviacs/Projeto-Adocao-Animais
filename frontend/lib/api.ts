@@ -488,3 +488,27 @@ export const buscarDadosRelatorios = async (filtroEspecie = ""): Promise<DadosRe
     especiesDisponiveis,
   }
 }
+
+
+// ── Vacinas ───────────────────────────────────────────────────────────────────
+export interface Vacinas {
+  antirrabica?: string | null
+  v8?: string | null
+  v10?: string | null
+  giardia?: string | null
+  leishmaniose?: string | null
+  triplice_felina?: string | null
+  quadrupla_felina?: string | null
+  data_atualizacao?: string | null
+}
+
+export const buscarVacinas = async (idAnimal: string): Promise<Vacinas | null> => {
+  const bruto = await requisitar<any>(`/vacinas/${idAnimal}`)
+  return bruto ?? null
+}
+
+export const salvarVacinas = (idAnimal: string, dados: Vacinas) =>
+  requisitar<Vacinas>(`/vacinas/${idAnimal}`, {
+    method: "PUT",
+    body: JSON.stringify(dados),
+  })

@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, PawPrint, Heart } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
-import { buscarAnimal, criarSolicitacao } from "@/lib/api"
+import { buscarAnimal, criarSolicitacao, buscarVacinas, salvarVacinas } from "@/lib/api"
+import { useUsuario } from "@/hooks/useUsuario"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"
 
@@ -12,6 +13,22 @@ const mensagensIndisponivel: Record<string, string> = {
   em_processo: "Este pet já está em processo de adoção.",
   adotado: "Este pet já foi adotado.",
   falecido: "Este pet não está mais disponível.",
+}
+
+const vacinasPorEspecie: Record<string, { campo: string; rotulo: string }[]> = {
+  cachorro: [
+    { campo: "antirrabica", rotulo: "Antirrábica" },
+    { campo: "v8", rotulo: "V8" },
+    { campo: "v10", rotulo: "V10" },
+    { campo: "giardia", rotulo: "Giárdia" },
+    { campo: "leishmaniose", rotulo: "Leishmaniose" },
+  ],
+  gato: [
+    { campo: "antirrabica", rotulo: "Antirrábica" },
+    { campo: "triplice_felina", rotulo: "Tríplice felina" },
+    { campo: "quadrupla_felina", rotulo: "Quádrupla felina" },
+    { campo: "giardia", rotulo: "Giárdia" },
+  ],
 }
 
 export default function PaginaDetalheAnimal() {
@@ -23,6 +40,47 @@ export default function PaginaDetalheAnimal() {
   const [mensagem, setMensagem] = useState("")
 
   const { dados: animal, carregando, recarregar } = useConsulta(() => buscarAnimal(id), [id])
+  const { ehAdmin } = useUsuario()
+  const { dados: vacinasDados, recarregar: recarregarVacinas } = useConsulta(() => buscarVacinas(id), [id])
+
+  const [vacinas, setVacinas] = useState<Record<string, string>>({})
+  const [salvandoVacinas, setSalvandoVacinas] = useState(false)
+  const [msgVacinas, setMsgVacinas] = useState("")
+
+  // quando as vacinas chegam do backend, preenche o estado (cortando o ISO pra YYYY-MM-DD)
+  useEffect(() => {
+    if (vacinasDados) {
+      const limpo: Record<string, string> = {}
+      Object.entries(vacinasDados).forEach(([k, v]) => {
+        if (v && typeof v === "string") limpo[k] = v.slice(0, 10)
+      })
+      setVacinas(limpo)
+    }
+  }, [vacinasDados])
+
+  // status da carteira: completa / incompleta / não vacinado
+  const statusVacinacao = (() => {
+    const lista = vacinasPorEspecie[animal?.especie ?? ""]
+    if (!lista) return null // espécie sem protocolo (coelho, ave...)
+    const preenchidas = lista.filter((v) => vacinas[v.campo]).length
+    if (preenchidas === 0) return { texto: "Não vacinado", cor: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" }
+    if (preenchidas === lista.length) return { texto: "Vacinação completa", cor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" }
+    return { texto: "Vacinação incompleta", cor: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" }
+  })()
+
+  const salvarCarteira = async () => {
+    setMsgVacinas("")
+    setSalvandoVacinas(true)
+    try {
+      await salvarVacinas(id, vacinas)
+      setMsgVacinas("Carteira de vacinação salva!")
+      recarregarVacinas()
+    } catch (e) {
+      setMsgVacinas(e instanceof Error ? e.message : "Erro ao salvar vacinas")
+    } finally {
+      setSalvandoVacinas(false)
+    }
+  }
 
   const [sucesso, setSucesso] = useState(false)
 
@@ -90,10 +148,54 @@ export default function PaginaDetalheAnimal() {
                 <Campo rotulo="Raça" valor={animal.raca || "—"} />
                 <Campo rotulo="Idade" valor={`${animal.idade} ${animal.unidadeIdade}`} />
                 <Campo rotulo="Sexo" valor={animal.sexo} />
-                <Campo rotulo="Vacinado" valor={animal.vacinado ? "Sim" : "Não"} />
+                <div>
+                  <p className="text-xs text-zinc-400">Vacinação</p>
+                  {statusVacinacao ? (
+                    <span className={`mt-0.5 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusVacinacao.cor}`}>
+                      {statusVacinacao.texto}
+                    </span>
+                  ) : (
+                    <p className="font-medium text-zinc-800 dark:text-zinc-200">—</p>
+                  )}
+                </div>
                 <Campo rotulo="Castrado" valor={animal.castrado ? "Sim" : "Não"} />
                 <Campo rotulo="Chipado" valor={animal.chipado ? "Sim" : "Não"} />
               </div>
+
+              {vacinasPorEspecie[animal.especie] && (
+                <div className="mt-5">
+                  <p className="mb-2 text-xs font-medium text-zinc-400">Carteira de vacinação</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {vacinasPorEspecie[animal.especie].map((v) => (
+                      <div key={v.campo}>
+                        <label className="mb-1 block text-xs text-zinc-400">{v.rotulo}</label>
+                        {ehAdmin ? (
+                          <input
+                            type="date"
+                            value={vacinas[v.campo] ?? ""}
+                            onChange={(e) => setVacinas({ ...vacinas, [v.campo]: e.target.value })}
+                            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                          />
+                        ) : (
+                          <p className="rounded-lg bg-zinc-50 px-3 py-2 text-sm text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                            {vacinas[v.campo] ? new Date(vacinas[v.campo] + "T00:00:00").toLocaleDateString("pt-BR") : "Não registrada"}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {ehAdmin && (
+                    <div className="mt-3">
+                      <Botao carregando={salvandoVacinas} onClick={salvarCarteira}>Salvar vacinas</Botao>
+                      {msgVacinas && (
+                        <p className={`mt-2 rounded-lg px-3 py-2 text-xs ${msgVacinas.includes("salva") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400"}`}>
+                          {msgVacinas}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {animal.descricao && (
                 <div className="mt-5">
