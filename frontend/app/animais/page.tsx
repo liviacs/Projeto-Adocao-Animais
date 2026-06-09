@@ -30,14 +30,17 @@ const opcoesEspecie = [
 export default function PaginaAnimais() {
   const router = useRouter()
   const { ehAdmin } = useUsuario()
+  const opcoesStatusVisiveis = ehAdmin
+    ? opcoesStatus
+    : opcoesStatus.filter((o) => o.valor !== "falecido")
   const [busca, setBusca]     = useState("")
   const [status, setStatus]   = useState<StatusAnimal | "">("")
   const [especie, setEspecie] = useState<EspecieAnimal | "">("")
   const [pagina, setPagina]   = useState(1)
 
   const { dados, carregando } = useConsulta(
-    () => buscarAnimais({ pagina, porPagina: 12, busca, status, especie }),
-    [pagina, busca, status, especie]
+    () => buscarAnimais({ pagina, porPagina: 12, busca, status, especie, ocultarFalecidos: !ehAdmin }),
+    [pagina, busca, status, especie, ehAdmin]
   )
 
   const limparFiltros = () => {
@@ -66,7 +69,7 @@ export default function PaginaAnimais() {
         {/* Filtros */}
         <div className="flex items-center gap-3">
           <Seletor
-            opcoes={opcoesStatus}
+            opcoes={opcoesStatusVisiveis}
             value={status}
             onChange={(e) => { setStatus(e.target.value as StatusAnimal | ""); setPagina(1) }}
             className="w-44 py-1.5 text-xs"

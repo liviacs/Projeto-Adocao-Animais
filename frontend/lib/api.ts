@@ -144,19 +144,19 @@ function paginarLocalmente<T>(
 }
 
 // ── Animais ──────────────────────────────────────────────────────────────────
-
 export interface FiltrosAnimal {
   pagina?: number
   porPagina?: number
   busca?: string
   status?: StatusAnimal | ""
   especie?: EspecieAnimal | ""
+  ocultarFalecidos?: boolean
 }
 
 export const buscarAnimais = async (
   filtros: FiltrosAnimal = {}
 ): Promise<RespostaPaginada<Animal>> => {
-  const { pagina = 1, porPagina = 12, busca = "", status = "", especie = "" } = filtros
+  const { pagina = 1, porPagina = 12, busca = "", status = "", especie = "", ocultarFalecidos = false } = filtros
 
   // backend devolve um array cru de todos os animais
   const bruto = await requisitar<any[]>("/animais")
@@ -173,6 +173,7 @@ export const buscarAnimais = async (
   }
   if (status) animais = animais.filter((a) => a.status === status)
   if (especie) animais = animais.filter((a) => a.especie === especie)
+  if (ocultarFalecidos) animais = animais.filter((a) => a.status !== "falecido")
 
   return paginarLocalmente(animais, pagina, porPagina)
 }
