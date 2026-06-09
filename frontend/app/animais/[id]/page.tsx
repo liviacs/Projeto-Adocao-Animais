@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, PawPrint, Heart } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
-import { buscarAnimal, criarSolicitacao, buscarVacinas, salvarVacinas } from "@/lib/api"
+import { buscarAnimal, criarSolicitacao, buscarVacinas, salvarVacinas, statusDocumentosPet, abrirDocumentoPet, enviarDocumentosPet } from "@/lib/api"
 import { useUsuario } from "@/hooks/useUsuario"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"
@@ -67,6 +67,53 @@ export default function PaginaDetalheAnimal() {
     if (preenchidas === lista.length) return { texto: "Vacinação completa", cor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" }
     return { texto: "Vacinação incompleta", cor: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" }
   })()
+
+  // documentos do pet (só admin)
+  const [statusDocs, setStatusDocs] = useState<any>(null)
+  const [docNascimento, setDocNascimento] = useState<File | null>(null)
+  const [docObito, setDocObito] = useState<File | null>(null)
+  const [docRga, setDocRga] = useState<File | null>(null)
+  const [docCarteira, setDocCarteira] = useState<File | null>(null)
+  const [salvandoDocs, setSalvandoDocs] = useState(false)
+  const [msgDocs, setMsgDocs] = useState("")
+
+  useEffect(() => {
+    if (ehAdmin && id) {
+      statusDocumentosPet(id).then(setStatusDocs).catch(() => {})
+    }
+  }, [ehAdmin, id])
+
+  const abrirDocPet = async (tipo: "nascimento" | "obito" | "rga" | "carteira") => {
+    try {
+      await abrirDocumentoPet(id, tipo)
+    } catch {
+      setMsgDocs("Documento não encontrado.")
+    }
+  }
+
+  const salvarDocsPet = async () => {
+    setMsgDocs("")
+    if (!docNascimento && !docObito && !docRga && !docCarteira) {
+      setMsgDocs("Anexe ao menos um documento.")
+      return
+    }
+    setSalvandoDocs(true)
+    try {
+      const docs: any = {}
+      if (docNascimento) docs.certidao_nascimento = docNascimento
+      if (docObito) docs.certidao_obito = docObito
+      if (docRga) docs.rga = docRga
+      if (docCarteira) docs.carteira_vacinacao = docCarteira
+      await enviarDocumentosPet(id, docs)
+      setMsgDocs("Documentos salvos com sucesso!")
+      setDocNascimento(null); setDocObito(null); setDocRga(null); setDocCarteira(null)
+      statusDocumentosPet(id).then(setStatusDocs).catch(() => {})
+    } catch (e) {
+      setMsgDocs(e instanceof Error ? e.message : "Erro ao salvar documentos")
+    } finally {
+      setSalvandoDocs(false)
+    }
+  }
 
   const salvarCarteira = async () => {
     setMsgVacinas("")
@@ -194,6 +241,38 @@ export default function PaginaDetalheAnimal() {
                       )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {ehAdmin && (
+                <div className="mt-5">
+                  <p className="mb-2 text-xs font-medium text-zinc-400">Documentos do pet</p>
+                  <div className="space-y-2">
+                    {[
+                      { tipo: "nascimento", rotulo: "Certidão de nascimento", tem: statusDocs?.tem_nascimento, set: setDocNascimento },
+                      { tipo: "obito", rotulo: "Certidão de óbito", tem: statusDocs?.tem_obito, set: setDocObito },
+                      { tipo: "rga", rotulo: "RGA", tem: statusDocs?.tem_rga, set: setDocRga },
+                      { tipo: "carteira", rotulo: "Carteira de vacinação", tem: statusDocs?.tem_carteira, set: setDocCarteira },
+                    ].map((d) => (
+                      <div key={d.tipo} className="flex items-center gap-3">
+                        <span className="w-44 text-xs text-zinc-500">{d.rotulo}</span>
+                        {d.tem ? (
+                          <button onClick={() => abrirDocPet(d.tipo as any)} className="text-xs text-emerald-600 hover:underline">Ver PDF</button>
+                        ) : (
+                          <span className="text-xs text-zinc-400">—</span>
+                        )}
+                        <input type="file" accept="application/pdf" onChange={(e) => d.set(e.target.files?.[0] ?? null)} className="ml-auto text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                      </div>
+                    ))}
+                  </div>
+                  {msgDocs && (
+                    <p className={`mt-2 rounded-lg px-3 py-2 text-xs ${msgDocs.includes("sucesso") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400"}`}>
+                      {msgDocs}
+                    </p>
+                  )}
+                  <div className="mt-3">
+                    <Botao carregando={salvandoDocs} onClick={salvarDocsPet}>Salvar documentos</Botao>
+                  </div>
                 </div>
               )}
 

@@ -104,4 +104,95 @@ router.get('/usuario/:idUsuario/:tipo', verificarToken, async (req, res) => {
   }
 });
 
+// ── Documentos do pet (só admin) ──────────────────────────────────────────────
+// Enviar/atualizar documentos do pet (todos opcionais)
+router.put('/pet/:idAnimal', verificarToken, verificarAdmin, upload.fields([
+  { name: 'certidao_nascimento', maxCount: 1 },
+  { name: 'certidao_obito', maxCount: 1 },
+  { name: 'rga', maxCount: 1 },
+  { name: 'carteira_vacinacao', maxCount: 1 },
+]), async (req, res) => {
+  try {
+    const { idAnimal } = req.params;
+    const nasc = req.files?.certidao_nascimento?.[0]?.buffer;
+    const obito = req.files?.certidao_obito?.[0]?.buffer;
+    const rga = req.files?.rga?.[0]?.buffer;
+    const carteira = req.files?.carteira_vacinacao?.[0]?.buffer;
+
+    const existente = await db.query(
+      'SELECT id_documento_pet FROM documentos_pet WHERE id_animal = $1',
+      [idAnimal]
+    );
+
+    if (existente.rows.length === 0) {
+      // tudo opcional — insere o que vier (resto null)
+      await db.query(
+        `INSERT INTO documentos_pet (id_animal, certidao_nascimento, certidao_obito, rga, carteira_vacinacao)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [idAnimal, nasc ?? null, obito ?? null, rga ?? null, carteira ?? null]
+      );
+    } else {
+      // atualiza só os que vieram (COALESCE mantém os atuais)
+      await db.query(
+        `UPDATE documentos_pet SET
+           certidao_nascimento = COALESCE($2, certidao_nascimento),
+           certidao_obito = COALESCE($3, certidao_obito),
+           rga = COALESCE($4, rga),
+           carteira_vacinacao = COALESCE($5, carteira_vacinacao)
+         WHERE id_animal = $1`,
+        [idAnimal, nasc ?? null, obito ?? null, rga ?? null, carteira ?? null]
+      );
+    }
+    res.json({ mensagem: 'Documentos do pet salvos com sucesso' });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+// Status: quais documentos o pet tem (só admin)
+router.get('/pet/:idAnimal/status', verificarToken, verificarAdmin, async (req, res) => {
+  try {
+    const { idAnimal } = req.params;
+    const result = await db.query(
+      `SELECT
+         (certidao_nascimento IS NOT NULL) AS tem_nascimento,
+         (certidao_obito IS NOT NULL) AS tem_obito,
+         (rga IS NOT NULL) AS tem_rga,
+         (carteira_vacinacao IS NOT NULL) AS tem_carteira
+       FROM documentos_pet WHERE id_animal = $1`,
+      [idAnimal]
+    );
+    res.json(result.rows[0] ?? { tem_nascimento: false, tem_obito: false, tem_rga: false, tem_carteira: false });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+// Baixar um documento do pet (só admin)
+router.get('/pet/:idAnimal/:tipo', verificarToken, verificarAdmin, async (req, res) => {
+  try {
+    const { idAnimal, tipo } = req.params;
+    const colunas = {
+      nascimento: 'certidao_nascimento',
+      obito: 'certidao_obito',
+      rga: 'rga',
+      carteira: 'carteira_vacinacao',
+    };
+    const coluna = colunas[tipo];
+    if (!coluna) return res.status(400).json({ erro: 'Tipo de documento inválido' });
+
+    const result = await db.query(
+      `SELECT ${coluna} AS doc FROM documentos_pet WHERE id_animal = $1`,
+      [idAnimal]
+    );
+    if (!result.rows[0]?.doc) return res.status(404).json({ erro: 'Documento não encontrado' });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${tipo}.pdf"`);
+    res.send(result.rows[0].doc);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
 module.exports = router;

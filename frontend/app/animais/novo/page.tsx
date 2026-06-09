@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Upload } from "lucide-react"
-import { criarAnimal, enviarFotoAnimal, salvarVacinas } from "@/lib/api"
+import { criarAnimal, enviarFotoAnimal, salvarVacinas, enviarDocumentosPet } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
 
@@ -60,6 +60,10 @@ export default function PaginaNovoAnimal() {
   const [castrado, setCastrado] = useState(false)
   const [chipado, setChipado] = useState(false)
   const [vacinas, setVacinas] = useState<Record<string, string>>({})
+  const [docNascimento, setDocNascimento] = useState<File | null>(null)
+  const [docObito, setDocObito] = useState<File | null>(null)
+  const [docRga, setDocRga] = useState<File | null>(null)
+  const [docCarteira, setDocCarteira] = useState<File | null>(null)
   const [foto, setFoto] = useState<File | null>(null)
   const [preview, setPreview] = useState<string>("")
 
@@ -103,9 +107,14 @@ export default function PaginaNovoAnimal() {
         await enviarFotoAnimal(String(idNovo), foto)
       }
 
-      // salva vacinas se for cão/gato e houver alguma data preenchida
-      if (vacinasPorEspecie[especie] && Object.values(vacinas).some((v) => v)) {
-        await salvarVacinas(String(idNovo), vacinas)
+      // envia documentos do pet, se houver algum
+      if (docNascimento || docObito || docRga || docCarteira) {
+        const docs: any = {}
+        if (docNascimento) docs.certidao_nascimento = docNascimento
+        if (docObito) docs.certidao_obito = docObito
+        if (docRga) docs.rga = docRga
+        if (docCarteira) docs.carteira_vacinacao = docCarteira
+        await enviarDocumentosPet(String(idNovo), docs)
       }
 
       // 3. volta pra lista
@@ -202,6 +211,28 @@ export default function PaginaNovoAnimal() {
                 </div>
               </div>
             )}
+
+            <div className="col-span-2">
+              <label className="mb-2 block text-xs font-medium text-zinc-500">Documentos do pet (PDF, opcional)</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs text-zinc-400">Certidão de nascimento</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setDocNascimento(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-zinc-400">Certidão de óbito</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setDocObito(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-zinc-400">RGA</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setDocRga(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-zinc-400">Carteira de vacinação</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setDocCarteira(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                </div>
+              </div>
+            </div>
 
             <div className="col-span-2">
               <label className="mb-1 block text-xs font-medium text-zinc-500">Descrição</label>

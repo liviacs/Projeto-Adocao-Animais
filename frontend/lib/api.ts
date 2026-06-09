@@ -556,3 +556,56 @@ export const abrirDocumentoUsuario = async (idUsuario: string, tipo: "identidade
   const url = URL.createObjectURL(blob)
   window.open(url, "_blank")
 }
+
+// ── Documentos do pet ─────────────────────────────────────────────────────────
+export const enviarDocumentosPet = (
+  idAnimal: string,
+  arquivos: {
+    certidao_nascimento?: File
+    certidao_obito?: File
+    rga?: File
+    carteira_vacinacao?: File
+  }
+) => {
+  const form = new FormData()
+  if (arquivos.certidao_nascimento) form.append("certidao_nascimento", arquivos.certidao_nascimento)
+  if (arquivos.certidao_obito) form.append("certidao_obito", arquivos.certidao_obito)
+  if (arquivos.rga) form.append("rga", arquivos.rga)
+  if (arquivos.carteira_vacinacao) form.append("carteira_vacinacao", arquivos.carteira_vacinacao)
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+  return fetch(`${URL_API}/documentos/pet/${idAnimal}`, {
+    method: "PUT",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  }).then(async (r) => {
+    const data = await r.json()
+    if (!r.ok) throw new Error(data.erro ?? "Erro ao enviar documentos do pet")
+    return data
+  })
+}
+
+export interface StatusDocsPet {
+  tem_nascimento: boolean
+  tem_obito: boolean
+  tem_rga: boolean
+  tem_carteira: boolean
+}
+
+export const statusDocumentosPet = async (idAnimal: string): Promise<StatusDocsPet> => {
+  return requisitar<StatusDocsPet>(`/documentos/pet/${idAnimal}/status`)
+}
+
+export const abrirDocumentoPet = async (
+  idAnimal: string,
+  tipo: "nascimento" | "obito" | "rga" | "carteira"
+) => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+  const r = await fetch(`${URL_API}/documentos/pet/${idAnimal}/${tipo}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!r.ok) throw new Error("Não foi possível abrir o documento")
+  const blob = await r.blob()
+  const url = URL.createObjectURL(blob)
+  window.open(url, "_blank")
+}
