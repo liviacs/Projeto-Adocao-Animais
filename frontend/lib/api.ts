@@ -395,3 +395,90 @@ export const buscarNotificacoes = async (): Promise<{ itens: Notificacao[]; naoL
 
 export const marcarNotificacaoLida = (id: string) =>
   requisitar<any>(`/notificacoes/${id}/lida`, { method: "PUT" })
+
+
+export interface DadosRelatorios {
+  porStatus: { nome: string; valor: number }[]
+  porEspecie: { nome: string; valor: number }[]
+  porRaca: { nome: string; valor: number }[]
+  porPorte: { nome: string; valor: number }[]
+  visaoAbrigo: { nome: string; valor: number }[]
+  taxaAprovacao: number
+  taxaPorEspecie: { especie: string; taxa: number }[]
+  especiesDisponiveis: string[]
+}
+
+export const buscarDadosRelatorios = async (filtroEspecie = ""): Promise<DadosRelatorios> => {
+  const [animaisBruto, solicBruto] = await Promise.all([
+    requisitar<any[]>("/animais"),
+    requisitar<any[]>("/solicitacoes"),
+  ])
+  const animais = Array.isArray(animaisBruto) ? animaisBruto : []
+  const solics = Array.isArray(solicBruto) ? solicBruto : []
+
+  // mapa de id_animal -> espécie (pra cruzar com solicitações)
+  const especiePorAnimal = new Map<string, string>()
+  animais.forEach((a) => especiePorAnimal.set(String(a.id_animal), a.especie || "Não informado"))
+
+  const contar = (lista: any[], campo: string) => {
+    const mapa = new Map<string, number>()
+    lista.forEach((item) => {
+      const chave = item[campo] || "Não informado"
+      mapa.set(chave, (mapa.get(chave) ?? 0) + 1)
+    })
+    return Array.from(mapa.entries()).map(([nome, valor]) => ({ nome, valor }))
+  }
+
+  // espécies disponíveis (pro filtro) — sempre todas
+  const especiesDisponiveis = Array.from(new Set(animais.map((a) => a.especie).filter(Boolean)))
+
+  // aplica o filtro de espécie nos animais (afeta porte e situação)
+  const animaisFiltrados = filtroEspecie
+    ? animais.filter((a) => a.especie === filtroEspecie)
+    : animais
+
+  // aplica o filtro nas solicitações (afeta status) — cruza pela espécie do animal
+  const solicsFiltradas = filtroEspecie
+    ? solics.filter((s) => especiePorAnimal.get(String(s.id_animal)) === filtroEspecie)
+    : solics
+
+  // status das solicitações (já filtradas)
+  const statusMap = new Map<string, number>()
+  solicsFiltradas.forEach((s) => {
+    const st = s.status || "—"
+    const rotulo = st === "APROVADA" ? "Adotadas" : st === "PENDENTE" ? "Pendentes" : "Rejeitadas"
+    statusMap.set(rotulo, (statusMap.get(rotulo) ?? 0) + 1)
+  })
+  const porStatus = Array.from(statusMap.entries()).map(([nome, valor]) => ({ nome, valor }))
+
+  // taxa de aprovação geral (das solicitações filtradas)
+  const aprovadas = solicsFiltradas.filter((s) => s.status === "APROVADA").length
+  const taxaAprovacao = solicsFiltradas.length > 0 ? Math.round((aprovadas / solicsFiltradas.length) * 100) : 0
+
+  // taxa por espécie (sempre de TODAS, não depende do filtro)
+  const taxaPorEspecie = especiesDisponiveis.map((esp) => {
+    const doEsp = solics.filter((s) => especiePorAnimal.get(String(s.id_animal)) === esp)
+    const apr = doEsp.filter((s) => s.status === "APROVADA").length
+    return { especie: esp, taxa: doEsp.length > 0 ? Math.round((apr / doEsp.length) * 100) : 0 }
+  })
+
+  // situação dos animais (filtrados)
+  const visaoMap = new Map<string, number>()
+  animaisFiltrados.forEach((a) => {
+    const st = a.status || "—"
+    const rotulo = st === "DISPONIVEL" ? "Disponível" : st === "EM_PROCESSO" ? "Em processo" : st === "ADOTADO" ? "Adotado" : st === "FALECIDO" ? "Falecido" : st
+    visaoMap.set(rotulo, (visaoMap.get(rotulo) ?? 0) + 1)
+  })
+  const visaoAbrigo = Array.from(visaoMap.entries()).map(([nome, valor]) => ({ nome, valor }))
+
+  return {
+    porStatus,
+    porEspecie: contar(animais, "especie"),          // sempre tudo
+    porRaca: contar(animaisFiltrados, "raca").sort((a, b) => b.valor - a.valor).slice(0, 8), // filtrado por espécie
+    porPorte: contar(animaisFiltrados, "porte"),      // filtrado
+    visaoAbrigo,                                       // filtrado
+    taxaAprovacao,                                     // filtrado
+    taxaPorEspecie,                                    // sempre tudo
+    especiesDisponiveis,
+  }
+}
