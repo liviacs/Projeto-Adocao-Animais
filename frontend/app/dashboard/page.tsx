@@ -56,7 +56,10 @@ export default function PaginaDashboard() {
               ) : animais?.dados.length === 0 ? (
                 <Vazio titulo="Nenhum animal cadastrado ainda" />
               ) : (
-                animais?.dados.map((animal) => (
+                [...(animais?.dados ?? [])]
+                  .sort((a, b) => Number(b.id) - Number(a.id))
+                  .slice(0, 10)
+                  .map((animal) => (
                   <div key={animal.id} className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
                       {animal.fotos[0]

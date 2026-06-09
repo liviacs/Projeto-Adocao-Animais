@@ -22,16 +22,22 @@ export default function PaginaDetalheAnimal() {
   const [solicitando, setSolicitando] = useState(false)
   const [mensagem, setMensagem] = useState("")
 
-  const { dados: animal, carregando } = useConsulta(() => buscarAnimal(id), [id])
+  const { dados: animal, carregando, recarregar } = useConsulta(() => buscarAnimal(id), [id])
+
+  const [sucesso, setSucesso] = useState(false)
 
   const handleSolicitar = async () => {
     if (!animal) return
     setSolicitando(true)
     setMensagem("")
+    setSucesso(false)
     try {
       await criarSolicitacao(animal.id)
-      setMensagem("Solicitação enviada com sucesso!")
+      setSucesso(true)
+      setMensagem("Solicitação criada com sucesso. Processo em Analise!")
+      recarregar() // recarrega o animal pra o status atualizar pra "em processo"
     } catch (e) {
+      setSucesso(false)
       setMensagem(e instanceof Error ? e.message : "Erro ao enviar solicitação")
     } finally {
       setSolicitando(false)
@@ -116,7 +122,7 @@ export default function PaginaDetalheAnimal() {
                 )}
 
                 {mensagem && (
-                  <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-center text-xs text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+                  <p className={`mt-3 rounded-lg px-3 py-2 text-center text-xs ${sucesso ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400"}`}>
                     {mensagem}
                   </p>
                 )}

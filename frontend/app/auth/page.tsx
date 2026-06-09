@@ -35,7 +35,8 @@ export default function PaginaLogin() {
     if (!response.ok) throw new Error(data.erro ?? "Email ou senha incorretos")
     localStorage.setItem("token", data.token)
     localStorage.setItem("usuario", JSON.stringify(data.usuario))
-    router.push("/dashboard")
+    // admin vai pro dashboard; adotante vai pra animais (não vê dashboard)
+    router.push(data.usuario?.tipo === "ADMIN" ? "/dashboard" : "/animais")
   }
 
   const entrar = async (e: React.FormEvent) => {
