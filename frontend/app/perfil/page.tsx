@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { User, Lock } from "lucide-react"
-import { atualizarPerfil } from "@/lib/api"
+import { User, Lock, FileText } from "lucide-react"
+import { atualizarPerfil, enviarDocumentosUsuario, verificarDocumentosUsuario } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
 
@@ -40,6 +40,12 @@ export default function PaginaPerfil() {
   const [salvandoSenha, setSalvandoSenha] = useState(false)
   const [msgSenha, setMsgSenha] = useState("")
 
+  const [docIdentidade, setDocIdentidade] = useState<File | null>(null)
+  const [docComprovante, setDocComprovante] = useState<File | null>(null)
+  const [temDocs, setTemDocs] = useState(false)
+  const [enviandoDocs, setEnviandoDocs] = useState(false)
+  const [msgDocs, setMsgDocs] = useState("")
+
   // carrega os dados do usuário logado do localStorage
   useEffect(() => {
     const u = localStorage.getItem("usuario")
@@ -57,6 +63,39 @@ export default function PaginaPerfil() {
       } catch {}
     }
   }, [])
+// verifica se o usuário já tem documentos enviados
+  useEffect(() => {
+    if (!id) return
+    verificarDocumentosUsuario(id).then(setTemDocs).catch(() => {})
+  }, [id])
+
+  const enviarDocs = async () => {
+    setMsgDocs("")
+    // primeiro envio exige os 2; atualização aceita parcial
+    if (!temDocs && (!docIdentidade || !docComprovante)) {
+      setMsgDocs("No primeiro envio, anexe os 2 documentos (identidade e comprovante).")
+      return
+    }
+    if (temDocs && !docIdentidade && !docComprovante) {
+      setMsgDocs("Anexe ao menos um documento para atualizar.")
+      return
+    }
+    setEnviandoDocs(true)
+    try {
+      // monta só com os arquivos selecionados
+      const form: any = {}
+      if (docIdentidade) form.documento_identidade = docIdentidade
+      if (docComprovante) form.comprovante_residencia = docComprovante
+      await enviarDocumentosUsuario(id, form)
+      setMsgDocs("Documentos enviados com sucesso!")
+      setTemDocs(true)
+      setDocIdentidade(null); setDocComprovante(null)
+    } catch (e) {
+      setMsgDocs(e instanceof Error ? e.message : "Erro ao enviar documentos")
+    } finally {
+      setEnviandoDocs(false)
+    }
+  }
 
   const salvarDados = async () => {
     setMsgDados("")
@@ -171,6 +210,45 @@ export default function PaginaPerfil() {
 
           <div className="mt-4 flex justify-end">
             <Botao carregando={salvandoSenha} onClick={salvarSenha}>Alterar senha</Botao>
+          </div>
+        </Card>
+
+        {/* Seção 3: documentos */}
+        <Card className="p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <FileText size={16} className="text-emerald-600" />
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Documentos</h2>
+          </div>
+
+          {temDocs && (
+            <p className="mb-3 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+              Você já enviou seus documentos. Envie novamente apenas os que quiser atualizar.
+            </p>
+          )}
+
+          <p className="mb-3 text-xs text-zinc-400">Apenas arquivos PDF.</p>
+
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Documento de identidade (RG/CPF) {!temDocs && "*"}</label>
+              <input type="file" accept="application/pdf" onChange={(e) => setDocIdentidade(e.target.files?.[0] ?? null)}
+                className="block w-full text-xs text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-3 file:py-1.5 file:text-xs file:text-zinc-700 dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Comprovante de residência {!temDocs && "*"}</label>
+              <input type="file" accept="application/pdf" onChange={(e) => setDocComprovante(e.target.files?.[0] ?? null)}
+                className="block w-full text-xs text-zinc-500 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-3 file:py-1.5 file:text-xs file:text-zinc-700 dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+            </div>
+          </div>
+
+          {msgDocs && (
+            <p className={`mt-3 rounded-lg px-3 py-2 text-xs ${msgDocs.includes("sucesso") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400"}`}>
+              {msgDocs}
+            </p>
+          )}
+
+          <div className="mt-4 flex justify-end">
+            <Botao carregando={enviandoDocs} onClick={enviarDocs}>Enviar documentos</Botao>
           </div>
         </Card>
       </div>

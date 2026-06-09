@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Trash2, X } from "lucide-react"
+import { Pencil, Trash2, X, FileText } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
-import { buscarUsuarios, atualizarUsuarioAdmin, excluirUsuario } from "@/lib/api"
+import { buscarUsuarios, atualizarUsuarioAdmin, excluirUsuario, abrirDocumentoUsuario } from "@/lib/api"
 import type { Usuario } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Vazio, Carregando, Campo, Seletor } from "@/components/animais/ui"
@@ -58,6 +58,14 @@ export default function PaginaUsuarios() {
     }
   }
 
+  const verDocumento = async (idUsuario: string, tipo: "identidade" | "comprovante") => {
+    try {
+      await abrirDocumentoUsuario(idUsuario, tipo)
+    } catch {
+      alert("Este usuário não enviou esse documento.")
+    }
+  }
+
   const excluir = async (u: Usuario) => {
     if (!confirm(`Excluir o usuário ${u.nome}?`)) return
     setExcluindo(u.id)
@@ -97,6 +105,8 @@ export default function PaginaUsuarios() {
                   </div>
                   <Etiqueta variante={u.perfil} />
                   <div className="flex gap-1">
+                    <Botao variante="secundario" tamanho="pequeno" icone={<FileText size={13} />} onClick={() => verDocumento(u.id, "identidade")}>Identidade</Botao>
+                    <Botao variante="secundario" tamanho="pequeno" icone={<FileText size={13} />} onClick={() => verDocumento(u.id, "comprovante")}>Comprovante</Botao>
                     <Botao variante="secundario" tamanho="pequeno" icone={<Pencil size={13} />} onClick={() => abrirEdicao(u)}>Editar</Botao>
                     <Botao variante="perigo" tamanho="pequeno" icone={<Trash2 size={13} />} carregando={excluindo === u.id} onClick={() => excluir(u)}>Excluir</Botao>
                   </div>

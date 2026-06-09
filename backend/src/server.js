@@ -19,6 +19,7 @@ const dashboardRoutes    = require('./routes/dashboard.routes');
 const relatoriosRoutes   = require('./routes/relatorios.routes');
 const notificacoesRoutes = require('./routes/notificacoes.routes');
 const vacinasRoutes      = require('./routes/vacinas.routes');
+const documentosRoutes   = require('./routes/documentos.routes');
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/api/dashboard',     dashboardRoutes);
 app.use('/api/relatorios',    relatoriosRoutes);
 app.use('/api/notificacoes', notificacoesRoutes);
 app.use('/api/vacinas',      vacinasRoutes);
+app.use('/api/documentos',   documentosRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

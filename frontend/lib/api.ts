@@ -512,3 +512,47 @@ export const salvarVacinas = (idAnimal: string, dados: Vacinas) =>
     method: "PUT",
     body: JSON.stringify(dados),
   })
+
+
+  // ── Documentos do usuário ─────────────────────────────────────────────────────
+export const enviarDocumentosUsuario = (
+  idUsuario: string,
+  arquivos: { documento_identidade?: File; comprovante_residencia?: File }
+) => {
+  const form = new FormData()
+  if (arquivos.documento_identidade) form.append("documento_identidade", arquivos.documento_identidade)
+  if (arquivos.comprovante_residencia) form.append("comprovante_residencia", arquivos.comprovante_residencia)
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+  return fetch(`${URL_API}/documentos/usuario/${idUsuario}`, {
+    method: "PUT",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  }).then(async (r) => {
+    const data = await r.json()
+    if (!r.ok) throw new Error(data.erro ?? "Erro ao enviar documentos")
+    return data
+  })
+}
+
+export const verificarDocumentosUsuario = async (idUsuario: string): Promise<boolean> => {
+  const r = await requisitar<{ temDocumentos: boolean }>(`/documentos/usuario/${idUsuario}/status`)
+  return r?.temDocumentos ?? false
+}
+
+// URL pra abrir/baixar um documento (rg | cpf | comprovante)
+export const urlDocumentoUsuario = (idUsuario: string, tipo: "identidade" | "comprovante") =>
+  `${URL_API}/documentos/usuario/${idUsuario}/${tipo}`
+
+
+// baixa um documento (com token) e abre numa nova aba
+export const abrirDocumentoUsuario = async (idUsuario: string, tipo: "identidade" | "comprovante") => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+  const r = await fetch(`${URL_API}/documentos/usuario/${idUsuario}/${tipo}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!r.ok) throw new Error("Não foi possível abrir o documento")
+  const blob = await r.blob()
+  const url = URL.createObjectURL(blob)
+  window.open(url, "_blank")
+}

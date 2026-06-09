@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict PNhjVvMMJlepZ7PBqGmaSmql6c0XgvchehfqwZ0txEvngomj1LfYzLhIKBk3g33
+\restrict nJdy72AGdgMLkvMZCkhJ6ZnY2CzFLTYKfCXt8OyZ0pPgHm78RiakwGdFEq9I1Jw
 
 -- Dumped from database version 18.4
 -- Dumped by pg_dump version 18.4
@@ -47,7 +47,7 @@ CREATE TABLE public.adocoes (
     id_animal integer NOT NULL,
     data_adocao timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     status character varying(20) DEFAULT 'PENDENTE'::character varying NOT NULL,
-    CONSTRAINT chk_adocoes_status CHECK (((status)::text = ANY ((ARRAY['PENDENTE'::character varying, 'ADOTADO'::character varying, 'REJEITADO'::character varying])::text[])))
+    CONSTRAINT chk_adocoes_status CHECK (((status)::text = ANY (ARRAY[('PENDENTE'::character varying)::text, ('ADOTADO'::character varying)::text, ('REJEITADO'::character varying)::text])))
 );
 
 
@@ -154,8 +154,7 @@ ALTER SEQUENCE public.documentos_pet_id_documento_pet_seq OWNED BY public.docume
 CREATE TABLE public.documentos_usuario (
     id_documento_usuario integer NOT NULL,
     id_usuario integer NOT NULL,
-    rg bytea NOT NULL,
-    cpf_documento bytea NOT NULL,
+    documento_identidade bytea CONSTRAINT documentos_usuario_rg_not_null NOT NULL,
     comprovante_residencia bytea NOT NULL
 );
 
@@ -734,5 +733,5 @@ ALTER TABLE ONLY public.notificacoes
 -- PostgreSQL database dump complete
 --
 
-\unrestrict PNhjVvMMJlepZ7PBqGmaSmql6c0XgvchehfqwZ0txEvngomj1LfYzLhIKBk3g33
+\unrestrict nJdy72AGdgMLkvMZCkhJ6ZnY2CzFLTYKfCXt8OyZ0pPgHm78RiakwGdFEq9I1Jw
 
