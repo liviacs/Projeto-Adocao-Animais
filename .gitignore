@@ -98,3 +98,4 @@ desktop.ini
 *.key
 *.cert
 database/backup_antes_reset.sql
+database/backup*.sql
