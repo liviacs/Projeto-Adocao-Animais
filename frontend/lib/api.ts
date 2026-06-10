@@ -299,6 +299,7 @@ export const buscarSolicitacoes = async (
     usuario: mapaUsuarios.get(String(s.id_usuario)) ?? ({ nome: "—", email: "" } as any),
     status: adaptarStatusSolicitacao(s.status ?? ""),
     mensagem: undefined,
+    motivoRejeicao: s.motivo_rejeicao ?? undefined,
     criadaEm: s.data_solicitacao ?? new Date().toISOString(),
     atualizadaEm: s.data_solicitacao ?? new Date().toISOString(),
   }))
@@ -384,6 +385,7 @@ export interface Notificacao {
   mensagem: string
   lida: boolean
   data: string
+  idSolicitacao?: string
 }
 
 export const buscarNotificacoes = async (): Promise<{ itens: Notificacao[]; naoLidas: number }> => {
@@ -394,6 +396,7 @@ export const buscarNotificacoes = async (): Promise<{ itens: Notificacao[]; naoL
     mensagem: n.mensagem,
     lida: n.lida,
     data: n.data_criacao,
+    idSolicitacao: n.id_solicitacao != null ? String(n.id_solicitacao) : undefined,
   }))
   const naoLidas = itens.filter((n) => !n.lida).length
   return { itens, naoLidas }

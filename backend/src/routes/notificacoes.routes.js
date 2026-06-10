@@ -8,7 +8,7 @@ router.get('/', verificarToken, async (req, res) => {
   try {
     const id_usuario = req.usuario.sub; // vem do token
     const result = await db.query(
-      `SELECT id_notificacao, id_usuario, tipo, mensagem, lida, data_criacao
+      `SELECT id_notificacao, id_usuario, tipo, mensagem, lida, data_criacao, id_solicitacao
        FROM notificacoes
        WHERE id_usuario = $1
        ORDER BY lida ASC, data_criacao DESC`,

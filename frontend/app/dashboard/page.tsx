@@ -17,6 +17,7 @@ export default function PaginaDashboard() {
   const { dados: solicitacoes, carregando: carregandoSolic } = useConsulta(() =>
     buscarSolicitacoes()
   )
+  const pendentes = (solicitacoes?.dados ?? []).filter((s) => s.status === "pendente")
 
   return (
     <Layout>
@@ -89,10 +90,10 @@ export default function PaginaDashboard() {
             <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {carregandoSolic ? (
                 <div className="flex justify-center py-10"><Carregando /></div>
-              ) : solicitacoes?.dados.length === 0 ? (
+              ) : pendentes.length === 0 ? (
                 <Vazio titulo="Nenhuma pendente" />
               ) : (
-                solicitacoes?.dados.map((solic) => (
+                pendentes.map((solic) => (
                   <div key={solic.id} className="px-4 py-3">
                     <p className="text-xs text-zinc-700 dark:text-zinc-300">
                       <span className="font-medium">{solic.usuario.nome}</span> quer adotar{" "}

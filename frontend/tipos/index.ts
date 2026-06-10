@@ -45,6 +45,7 @@ export interface Solicitacao {
   usuario: Usuario
   status: StatusSolicitacao
   mensagem?: string
+  motivoRejeicao?: string
   criadaEm: string
   atualizadaEm: string
 }

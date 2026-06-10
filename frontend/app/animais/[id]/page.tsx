@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, PawPrint, Heart } from "lucide-react"
+import { ArrowLeft, PawPrint, Heart, X } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
-import { buscarAnimal, criarSolicitacao, buscarVacinas, salvarVacinas, statusDocumentosPet, abrirDocumentoPet, enviarDocumentosPet } from "@/lib/api"
+import { buscarAnimal, criarSolicitacao, buscarVacinas, salvarVacinas, statusDocumentosPet, abrirDocumentoPet, enviarDocumentosPet, verificarDocumentosUsuario, enviarDocumentosUsuario } from "@/lib/api"
 import { useUsuario } from "@/hooks/useUsuario"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"
@@ -38,6 +38,11 @@ export default function PaginaDetalheAnimal() {
 
   const [solicitando, setSolicitando] = useState(false)
   const [mensagem, setMensagem] = useState("")
+  const [popupSolic, setPopupSolic] = useState(false)
+  const [temDocsUsuario, setTemDocsUsuario] = useState(false)
+  const [usarSalvos, setUsarSalvos] = useState(true)
+  const [solicIdentidade, setSolicIdentidade] = useState<File | null>(null)
+  const [solicComprovante, setSolicComprovante] = useState<File | null>(null)
 
   const { dados: animal, carregando, recarregar } = useConsulta(() => buscarAnimal(id), [id])
   const { ehAdmin } = useUsuario()
@@ -131,16 +136,43 @@ export default function PaginaDetalheAnimal() {
 
   const [sucesso, setSucesso] = useState(false)
 
+  // abre o popup, verificando se o usuário já tem documentos salvos
+  const abrirPopupSolic = async () => {
+    if (!animal) return
+    setMensagem("")
+    setSucesso(false)
+    const u = JSON.parse(localStorage.getItem("usuario") || "{}")
+    if (u.id) {
+      try {
+        const tem = await verificarDocumentosUsuario(String(u.id))
+        setTemDocsUsuario(tem)
+        setUsarSalvos(tem) // se tem, já marca usar salvos
+      } catch {
+        setTemDocsUsuario(false)
+      }
+    }
+    setPopupSolic(true)
+  }
+
   const handleSolicitar = async () => {
     if (!animal) return
     setSolicitando(true)
     setMensagem("")
     setSucesso(false)
     try {
+      const u = JSON.parse(localStorage.getItem("usuario") || "{}")
+      // se enviou documentos novos (e não vai usar os salvos), envia antes
+      if (!usarSalvos && (solicIdentidade || solicComprovante) && u.id) {
+        const docs: any = {}
+        if (solicIdentidade) docs.documento_identidade = solicIdentidade
+        if (solicComprovante) docs.comprovante_residencia = solicComprovante
+        await enviarDocumentosUsuario(String(u.id), docs)
+      }
       await criarSolicitacao(animal.id)
+      setPopupSolic(false)
       setSucesso(true)
-      setMensagem("Solicitação criada com sucesso. Processo em Analise!")
-      recarregar() // recarrega o animal pra o status atualizar pra "em processo"
+      setMensagem("Solicitação criada com sucesso. Processo em Análise!")
+      recarregar()
     } catch (e) {
       setSucesso(false)
       setMensagem(e instanceof Error ? e.message : "Erro ao enviar solicitação")
@@ -289,9 +321,8 @@ export default function PaginaDetalheAnimal() {
               <div className="mt-6">
                 <Botao
                   icone={<Heart size={15} />}
-                  carregando={solicitando}
                   disabled={animal.status !== "disponivel"}
-                  onClick={handleSolicitar}
+                  onClick={abrirPopupSolic}
                   className="w-full justify-center"
                 >
                   {animal.status === "disponivel" ? "Solicitar adoção" : "Indisponível para adoção"}
@@ -313,6 +344,47 @@ export default function PaginaDetalheAnimal() {
           </Card>
         )}
       </div>
+    {/* Popup de solicitação com documentos */}
+      {popupSolic && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !solicitando && setPopupSolic(false)}>
+          <Card className="w-full max-w-md p-6" onClick={(ev: any) => ev.stopPropagation()}>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Solicitar adoção</h2>
+              <button onClick={() => setPopupSolic(false)} className="text-zinc-400 hover:text-zinc-700"><X size={18} /></button>
+            </div>
+
+            <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-300">
+              Os documentos ajudam na análise da adoção (opcional).
+            </p>
+
+            {temDocsUsuario && (
+              <label className="mb-4 flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <input type="checkbox" checked={usarSalvos} onChange={(e) => setUsarSalvos(e.target.checked)} className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" />
+                Usar meus documentos já salvos
+              </label>
+            )}
+
+            {!usarSalvos && (
+              <div className="mb-4 space-y-3">
+                <p className="text-xs text-zinc-400">Anexar documentos (PDF, opcional)</p>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-zinc-500">Documento de identidade</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setSolicIdentidade(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-zinc-500">Comprovante de residência</label>
+                  <input type="file" accept="application/pdf" onChange={(e) => setSolicComprovante(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Botao variante="secundario" onClick={() => setPopupSolic(false)}>Cancelar</Botao>
+              <Botao carregando={solicitando} onClick={handleSolicitar}>Confirmar solicitação</Botao>
+            </div>
+          </Card>
+        </div>
+      )}
     </Layout>
   )
 }

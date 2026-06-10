@@ -8,7 +8,7 @@ const { verificarToken, verificarAdmin } = require('../auth');
 router.get('/', verificarToken, async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT id_solicitacao, id_usuario, id_animal, data_solicitacao, status
+      SELECT id_solicitacao, id_usuario, id_animal, data_solicitacao, status, motivo_rejeicao
       FROM solicitacoes
     `);
 
@@ -73,8 +73,8 @@ router.post('/', verificarToken, async (req, res) => {
     const nomeAnimal = animalInfo.rows[0]?.nome ?? 'um animal';
     for (const admin of admins.rows) {
       await client.query(
-        `INSERT INTO notificacoes (id_usuario, tipo, mensagem) VALUES ($1, 'nova', $2)`,
-        [admin.id_usuario, `Nova solicitação de adoção para ${nomeAnimal}`]
+        `INSERT INTO notificacoes (id_usuario, tipo, mensagem, id_solicitacao) VALUES ($1, 'nova', $2, $3)`,
+        [admin.id_usuario, `Nova solicitação de adoção para ${nomeAnimal}`, result.rows[0].id_solicitacao]
       );
     }
 
@@ -134,13 +134,13 @@ router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
     const nomeAnimal = animalInfo.rows[0]?.nome ?? 'o animal';
     if (status === 'APROVADA') {
       await client.query(
-        `INSERT INTO notificacoes (id_usuario, tipo, mensagem) VALUES ($1, 'aprovada', $2)`,
-        [id_usuario, `Sua solicitação para adotar ${nomeAnimal} foi aprovada!`]
+        `INSERT INTO notificacoes (id_usuario, tipo, mensagem, id_solicitacao) VALUES ($1, 'aprovada', $2, $3)`,
+        [id_usuario, `Sua solicitação para adotar ${nomeAnimal} foi aprovada!`, id_solicitacao]
       );
     } else if (status === 'REPROVADA') {
       await client.query(
-        `INSERT INTO notificacoes (id_usuario, tipo, mensagem) VALUES ($1, 'rejeitada', $2)`,
-        [id_usuario, `Sua solicitação para adotar ${nomeAnimal} foi recusada.`]
+        `INSERT INTO notificacoes (id_usuario, tipo, mensagem, id_solicitacao) VALUES ($1, 'rejeitada', $2, $3)`,
+        [id_usuario, `Sua solicitação para adotar ${nomeAnimal} foi recusada.`, id_solicitacao]
       );
     }
 

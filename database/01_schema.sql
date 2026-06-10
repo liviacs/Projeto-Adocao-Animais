@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict nJdy72AGdgMLkvMZCkhJ6ZnY2CzFLTYKfCXt8OyZ0pPgHm78RiakwGdFEq9I1Jw
+\restrict odW7yXJ9yzbMDjzDxOQqj9gDCWOcvyaxOheqn6QyKivuRkVjgb1fpSN64Jlwp7H
 
 -- Dumped from database version 18.4
 -- Dumped by pg_dump version 18.4
@@ -287,7 +287,8 @@ CREATE TABLE public.notificacoes (
     tipo character varying(20) NOT NULL,
     mensagem text NOT NULL,
     lida boolean DEFAULT false NOT NULL,
-    data_criacao timestamp without time zone DEFAULT now() NOT NULL
+    data_criacao timestamp without time zone DEFAULT now() NOT NULL,
+    id_solicitacao integer
 );
 
 
@@ -722,6 +723,14 @@ ALTER TABLE ONLY public.vacinas
 
 
 --
+-- Name: notificacoes notificacoes_id_solicitacao_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.notificacoes
+    ADD CONSTRAINT notificacoes_id_solicitacao_fkey FOREIGN KEY (id_solicitacao) REFERENCES public.solicitacoes(id_solicitacao);
+
+
+--
 -- Name: notificacoes notificacoes_id_usuario_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -733,5 +742,5 @@ ALTER TABLE ONLY public.notificacoes
 -- PostgreSQL database dump complete
 --
 
-\unrestrict nJdy72AGdgMLkvMZCkhJ6ZnY2CzFLTYKfCXt8OyZ0pPgHm78RiakwGdFEq9I1Jw
+\unrestrict odW7yXJ9yzbMDjzDxOQqj9gDCWOcvyaxOheqn6QyKivuRkVjgb1fpSN64Jlwp7H
 
