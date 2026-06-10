@@ -3,12 +3,12 @@
 import { useUsuario } from "@/hooks/useUsuario"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, PawPrint } from "lucide-react"
+import { Plus, PawPrint, Pencil, X } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
-import { buscarAnimais } from "@/lib/api"
-import type { StatusAnimal, EspecieAnimal } from "@/tipos"
+import { buscarAnimais, atualizarAnimal } from "@/lib/api"
+import type { StatusAnimal, EspecieAnimal, Animal } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
-import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"
+import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor, Campo } from "@/components/animais/ui"
 
 const opcoesStatus = [
   { valor: "",            rotulo: "Todos os status" },
@@ -26,6 +26,43 @@ const opcoesEspecie = [
   { valor: "passaro",  rotulo: "Pássaro" },
   { valor: "outro",    rotulo: "Outro" },
 ]
+// opções no formato que o backend espera (para o modal de edição)
+const opcoesEspecieEdit = [
+  { valor: "Cachorro", rotulo: "Cachorro" },
+  { valor: "Gato", rotulo: "Gato" },
+  { valor: "Coelho", rotulo: "Coelho" },
+  { valor: "Passaro", rotulo: "Pássaro" },
+  { valor: "Outro", rotulo: "Outro" },
+]
+const opcoesSexoEdit = [
+  { valor: "Macho", rotulo: "Macho" },
+  { valor: "Fêmea", rotulo: "Fêmea" },
+]
+const opcoesPorteEdit = [
+  { valor: "Pequeno", rotulo: "Pequeno" },
+  { valor: "Médio", rotulo: "Médio" },
+  { valor: "Grande", rotulo: "Grande" },
+]
+const opcoesStatusEdit = [
+  { valor: "DISPONIVEL", rotulo: "Disponível" },
+  { valor: "EM_PROCESSO", rotulo: "Em processo" },
+  { valor: "ADOTADO", rotulo: "Adotado" },
+  { valor: "FALECIDO", rotulo: "Falecido" },
+]
+
+// converte os valores adaptados (minúsculo) de volta pro formato do backend
+const paraEspecieBackend: Record<string, string> = {
+  cachorro: "Cachorro", gato: "Gato", coelho: "Coelho", passaro: "Passaro", outro: "Outro",
+}
+const paraSexoBackend: Record<string, string> = {
+  macho: "Macho", femea: "Fêmea", "fêmea": "Fêmea",
+}
+const paraPorteBackend: Record<string, string> = {
+  pequeno: "Pequeno", medio: "Médio", "médio": "Médio", grande: "Grande",
+}
+const paraStatusBackend: Record<string, string> = {
+  disponivel: "DISPONIVEL", em_processo: "EM_PROCESSO", adotado: "ADOTADO", falecido: "FALECIDO",
+}
 
 export default function PaginaAnimais() {
   const router = useRouter()
@@ -38,7 +75,22 @@ export default function PaginaAnimais() {
   const [especie, setEspecie] = useState<EspecieAnimal | "">("")
   const [pagina, setPagina]   = useState(1)
 
-  const { dados, carregando } = useConsulta(
+  // edição de animal (modal)
+  const [editando, setEditando] = useState<Animal | null>(null)
+  const [edNome, setEdNome] = useState("")
+  const [edEspecie, setEdEspecie] = useState("Cachorro")
+  const [edRaca, setEdRaca] = useState("")
+  const [edIdade, setEdIdade] = useState("")
+  const [edSexo, setEdSexo] = useState("Macho")
+  const [edPorte, setEdPorte] = useState("Médio")
+  const [edStatus, setEdStatus] = useState("DISPONIVEL")
+  const [edCondSaude, setEdCondSaude] = useState("")
+  const [edCastrado, setEdCastrado] = useState(false)
+  const [edChipado, setEdChipado] = useState(false)
+  const [salvandoEd, setSalvandoEd] = useState(false)
+  const [msgEd, setMsgEd] = useState("")
+
+  const { dados, carregando, recarregar } = useConsulta(
     () => buscarAnimais({ pagina, porPagina: 12, busca, status, especie, ocultarFalecidos: !ehAdmin }),
     [pagina, busca, status, especie, ehAdmin]
   )
@@ -48,6 +100,47 @@ export default function PaginaAnimais() {
     setEspecie("")
     setBusca("")
     setPagina(1)
+  }
+
+  const abrirEdicao = (animal: Animal) => {
+    setEditando(animal)
+    setEdNome(animal.nome ?? "")
+    setEdEspecie(paraEspecieBackend[animal.especie] ?? "Cachorro")
+    setEdRaca(animal.raca ?? "")
+    setEdIdade(String(animal.idade ?? ""))
+    setEdSexo(paraSexoBackend[(animal.sexo ?? "").toLowerCase()] ?? "Macho")
+    setEdPorte(paraPorteBackend[(animal.porte ?? "").toLowerCase()] ?? "Médio")
+    setEdStatus(paraStatusBackend[animal.status] ?? "DISPONIVEL")
+    setEdCondSaude((animal as any).condSaude ?? (animal as any).cond_saude ?? "")
+    setEdCastrado(!!animal.castrado)
+    setEdChipado(!!animal.chipado)
+    setMsgEd("")
+  }
+
+  const salvarEdicao = async () => {
+    if (!editando) return
+    setMsgEd("")
+    setSalvandoEd(true)
+    try {
+      await atualizarAnimal(editando.id, {
+        nome: edNome,
+        especie: edEspecie,
+        raca: edRaca,
+        idade: Number(edIdade) || 0,
+        sexo: edSexo,
+        porte: edPorte,
+        status: edStatus,
+        cond_saude: edCondSaude,
+        castrado: edCastrado,
+        chipado: edChipado,
+      } as any)
+      setEditando(null)
+      recarregar()
+    } catch (e) {
+      setMsgEd(e instanceof Error ? e.message : "Erro ao salvar")
+    } finally {
+      setSalvandoEd(false)
+    }
   }
 
   return (
@@ -122,7 +215,17 @@ export default function PaginaAnimais() {
                     <p className="mb-2 text-xs text-zinc-400">
                       {animal.raca} · {animal.idade} {animal.unidadeIdade === "meses" ? "meses" : "anos"}
                     </p>
-                    <Etiqueta variante={animal.status} />
+                    <div className="flex items-center justify-between">
+                      <Etiqueta variante={animal.status} />
+                      {ehAdmin && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); abrirEdicao(animal) }}
+                          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 hover:text-emerald-600 dark:hover:bg-zinc-800"
+                        >
+                          <Pencil size={12} /> Editar
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </Card>
               ))}
@@ -146,6 +249,64 @@ export default function PaginaAnimais() {
           </>
         )}
       </div>
+      
+ {/* Modal de edição do animal */}
+      {editando && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => !salvandoEd && setEditando(null)}>
+          <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-5 dark:bg-zinc-900" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Editar {editando.nome}</h2>
+              <button onClick={() => setEditando(null)} className="text-zinc-400 hover:text-zinc-600"><X size={16} /></button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <Campo id="edNome" rotulo="Nome" value={edNome} onChange={(e) => setEdNome(e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">Espécie</label>
+                <Seletor opcoes={opcoesEspecieEdit} value={edEspecie} onChange={(e) => setEdEspecie(e.target.value)} className="w-full py-2 text-sm" />
+              </div>
+              <Campo id="edRaca" rotulo="Raça" value={edRaca} onChange={(e) => setEdRaca(e.target.value)} />
+              <Campo id="edIdade" rotulo="Idade (anos)" type="number" value={edIdade} onChange={(e) => setEdIdade(e.target.value)} />
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">Sexo</label>
+                <Seletor opcoes={opcoesSexoEdit} value={edSexo} onChange={(e) => setEdSexo(e.target.value)} className="w-full py-2 text-sm" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">Porte</label>
+                <Seletor opcoes={opcoesPorteEdit} value={edPorte} onChange={(e) => setEdPorte(e.target.value)} className="w-full py-2 text-sm" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">Status</label>
+                <Seletor opcoes={opcoesStatusEdit} value={edStatus} onChange={(e) => setEdStatus(e.target.value)} className="w-full py-2 text-sm" />
+              </div>
+              <div className="col-span-2">
+                <Campo id="edCondSaude" rotulo="Condição de saúde" value={edCondSaude} onChange={(e) => setEdCondSaude(e.target.value)} />
+              </div>
+              <div className="col-span-2 flex gap-6">
+                <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                  <input type="checkbox" checked={edCastrado} onChange={(e) => setEdCastrado(e.target.checked)} className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" />
+                  Castrado
+                </label>
+                <label className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                  <input type="checkbox" checked={edChipado} onChange={(e) => setEdChipado(e.target.checked)} className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" />
+                  Chipado
+                </label>
+              </div>
+            </div>
+
+            {msgEd && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-950 dark:text-red-400">{msgEd}</p>
+            )}
+
+            <div className="mt-5 flex justify-end gap-2">
+              <Botao variante="secundario" tamanho="pequeno" onClick={() => setEditando(null)}>Cancelar</Botao>
+              <Botao tamanho="pequeno" carregando={salvandoEd} onClick={salvarEdicao}>Salvar alterações</Botao>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }
