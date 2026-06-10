@@ -613,3 +613,16 @@ export const abrirDocumentoPet = async (
   const url = URL.createObjectURL(blob)
   window.open(url, "_blank")
 }
+
+// ── Recuperação de senha ──────────────────────────────────────────────────────
+export const solicitarTokenSenha = (email: string) =>
+  requisitar<{ mensagem: string; token: string }>("/auth/recuperar", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  })
+
+export const redefinirSenha = (email: string, token: string, novaSenha: string) =>
+  requisitar<{ mensagem: string }>("/auth/redefinir", {
+    method: "POST",
+    body: JSON.stringify({ email, token, novaSenha }),
+  })

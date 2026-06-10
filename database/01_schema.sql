@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict FTrLUHhT7ILUD9rPrPfCwZgDn0g8lejaRGvs71KB07nB8XjQG9ZgPCdskjyjfLP
+\restrict G8Fbid3nZidGTUphq9PlHXCMYVSh34Lco2oiT3BXrUBQSceQIWtuZuNL0hE30c8
 
 -- Dumped from database version 18.4
 -- Dumped by pg_dump version 18.4
@@ -361,7 +361,9 @@ CREATE TABLE public.usuarios (
     data_cadastro timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     cpf character varying(14),
     orientacao_sexual character varying(50),
-    qtd_adocoes integer DEFAULT 0
+    qtd_adocoes integer DEFAULT 0,
+    token_recuperacao character varying(6),
+    token_expira timestamp without time zone
 );
 
 
@@ -743,5 +745,5 @@ ALTER TABLE ONLY public.notificacoes
 -- PostgreSQL database dump complete
 --
 
-\unrestrict FTrLUHhT7ILUD9rPrPfCwZgDn0g8lejaRGvs71KB07nB8XjQG9ZgPCdskjyjfLP
+\unrestrict G8Fbid3nZidGTUphq9PlHXCMYVSh34Lco2oiT3BXrUBQSceQIWtuZuNL0hE30c8
 
