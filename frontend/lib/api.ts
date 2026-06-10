@@ -100,6 +100,7 @@ function adaptarAnimal(bruto: any): Animal {
     especie: adaptarEspecie(bruto.especie ?? ""),
     raca: bruto.raca ?? "",
     idade: Number(bruto.idade ?? 0),
+    dataNascimento: bruto.data_nascimento ?? undefined,
     unidadeIdade: "anos", // backend não informa; assumimos anos
     sexo: adaptarSexo(bruto.sexo ?? ""),
     status: adaptarStatusAnimal(bruto.status ?? ""),

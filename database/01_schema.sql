@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict odW7yXJ9yzbMDjzDxOQqj9gDCWOcvyaxOheqn6QyKivuRkVjgb1fpSN64Jlwp7H
+\restrict FTrLUHhT7ILUD9rPrPfCwZgDn0g8lejaRGvs71KB07nB8XjQG9ZgPCdskjyjfLP
 
 -- Dumped from database version 18.4
 -- Dumped by pg_dump version 18.4
@@ -89,7 +89,8 @@ CREATE TABLE public.animais (
     data_cadastro timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     qtd_adocoes integer DEFAULT 0,
     castrado boolean DEFAULT false,
-    chipado boolean DEFAULT false
+    chipado boolean DEFAULT false,
+    data_nascimento date
 );
 
 
@@ -742,5 +743,5 @@ ALTER TABLE ONLY public.notificacoes
 -- PostgreSQL database dump complete
 --
 
-\unrestrict odW7yXJ9yzbMDjzDxOQqj9gDCWOcvyaxOheqn6QyKivuRkVjgb1fpSN64Jlwp7H
+\unrestrict FTrLUHhT7ILUD9rPrPfCwZgDn0g8lejaRGvs71KB07nB8XjQG9ZgPCdskjyjfLP
 

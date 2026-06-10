@@ -80,7 +80,7 @@ export default function PaginaAnimais() {
   const [edNome, setEdNome] = useState("")
   const [edEspecie, setEdEspecie] = useState("Cachorro")
   const [edRaca, setEdRaca] = useState("")
-  const [edIdade, setEdIdade] = useState("")
+  const [edDataNascimento, setEdDataNascimento] = useState("")
   const [edSexo, setEdSexo] = useState("Macho")
   const [edPorte, setEdPorte] = useState("Médio")
   const [edStatus, setEdStatus] = useState("DISPONIVEL")
@@ -107,7 +107,7 @@ export default function PaginaAnimais() {
     setEdNome(animal.nome ?? "")
     setEdEspecie(paraEspecieBackend[animal.especie] ?? "Cachorro")
     setEdRaca(animal.raca ?? "")
-    setEdIdade(String(animal.idade ?? ""))
+    setEdDataNascimento((animal as any).dataNascimento ? String((animal as any).dataNascimento).slice(0, 10) : "")
     setEdSexo(paraSexoBackend[(animal.sexo ?? "").toLowerCase()] ?? "Macho")
     setEdPorte(paraPorteBackend[(animal.porte ?? "").toLowerCase()] ?? "Médio")
     setEdStatus(paraStatusBackend[animal.status] ?? "DISPONIVEL")
@@ -126,7 +126,7 @@ export default function PaginaAnimais() {
         nome: edNome,
         especie: edEspecie,
         raca: edRaca,
-        idade: Number(edIdade) || 0,
+        data_nascimento: edDataNascimento || null,
         sexo: edSexo,
         porte: edPorte,
         status: edStatus,
@@ -268,7 +268,7 @@ export default function PaginaAnimais() {
                 <Seletor opcoes={opcoesEspecieEdit} value={edEspecie} onChange={(e) => setEdEspecie(e.target.value)} className="w-full py-2 text-sm" />
               </div>
               <Campo id="edRaca" rotulo="Raça" value={edRaca} onChange={(e) => setEdRaca(e.target.value)} />
-              <Campo id="edIdade" rotulo="Idade (anos)" type="number" value={edIdade} onChange={(e) => setEdIdade(e.target.value)} />
+              <Campo id="edDataNascimento" rotulo="Data de nascimento" type="date" value={edDataNascimento} onChange={(e) => setEdDataNascimento(e.target.value)} />
               <div>
                 <label className="mb-1 block text-xs font-medium text-zinc-500">Sexo</label>
                 <Seletor opcoes={opcoesSexoEdit} value={edSexo} onChange={(e) => setEdSexo(e.target.value)} className="w-full py-2 text-sm" />

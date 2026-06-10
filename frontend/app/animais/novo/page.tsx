@@ -51,7 +51,7 @@ export default function PaginaNovoAnimal() {
   const [nome, setNome] = useState("")
   const [especie, setEspecie] = useState("Cachorro")
   const [raca, setRaca] = useState("")
-  const [idade, setIdade] = useState("")
+  const [dataNascimento, setDataNascimento] = useState("")
   const [sexo, setSexo] = useState("Macho")
   const [porte, setPorte] = useState("Médio")
   const [condSaude, setCondSaude] = useState("")
@@ -91,7 +91,7 @@ export default function PaginaNovoAnimal() {
         nome,
         especie,
         raca,
-        idade: Number(idade) || 0,
+        data_nascimento: dataNascimento || null,
         sexo,
         porte,
         cond_saude: condSaude,
@@ -166,7 +166,7 @@ export default function PaginaNovoAnimal() {
               <Seletor opcoes={opcoesEspecie} value={especie} onChange={(e) => setEspecie(e.target.value)} className="w-full py-2 text-sm" />
             </div>
             <Campo id="raca" rotulo="Raça" value={raca} onChange={(e) => setRaca(e.target.value)} />
-            <Campo id="idade" rotulo="Idade (anos)" type="number" value={idade} onChange={(e) => setIdade(e.target.value)} />
+            <Campo id="dataNascimento" rotulo="Data de nascimento" type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} />
             <div>
               <label className="mb-1 block text-xs font-medium text-zinc-500">Sexo</label>
               <Seletor opcoes={opcoesSexo} value={sexo} onChange={(e) => setSexo(e.target.value)} className="w-full py-2 text-sm" />
