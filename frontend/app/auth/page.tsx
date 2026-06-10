@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { PawPrint } from "lucide-react"
 import { Botao, Campo, Seletor } from "@/components/animais/ui"
+import { enviarDocumentosUsuario } from "@/lib/api"
 
 function formatarCpf(v: string): string {
   return v.replace(/\D/g, "").slice(0, 11)
@@ -40,6 +41,8 @@ export default function PaginaLogin() {
   const [cConfirma, setCConfirma] = useState("")
   const [cCpf, setCCpf] = useState("")
   const [cOrientacao, setCOrientacao] = useState("")
+  const [cDocIdentidade, setCDocIdentidade] = useState<File | null>(null)
+  const [cDocComprovante, setCDocComprovante] = useState<File | null>(null)
   const [erroCad, setErroCad] = useState("")
   const [criando, setCriando] = useState(false)
 
@@ -104,7 +107,28 @@ export default function PaginaLogin() {
         setCriando(false)
         return
       }
-      // login automático com as credenciais recém-criadas
+      // se anexou documentos: loga (pra ter token), envia os docs e redireciona
+      if (cDocIdentidade || cDocComprovante) {
+        const respLogin = await fetch("http://localhost:3005/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cEmail, senha: cSenha }),
+        })
+        const dadosLogin = await respLogin.json()
+        if (respLogin.ok) {
+          localStorage.setItem("token", dadosLogin.token)
+          localStorage.setItem("usuario", JSON.stringify(dadosLogin.usuario))
+          try {
+            const docs: any = {}
+            if (cDocIdentidade) docs.documento_identidade = cDocIdentidade
+            if (cDocComprovante) docs.comprovante_residencia = cDocComprovante
+            await enviarDocumentosUsuario(String(data.id_usuario), docs)
+          } catch {}
+          router.push(dadosLogin.usuario?.tipo === "ADMIN" ? "/dashboard" : "/animais")
+          return
+        }
+      }
+      // login automático (sem documentos)
       await fazerLogin(cEmail, cSenha)
     } catch (err) {
       setErroCad(err instanceof Error ? err.message : "Erro ao conectar com o servidor")
@@ -158,6 +182,14 @@ export default function PaginaLogin() {
             </div>
             <Campo id="cSenha" rotulo="Senha" type="password" placeholder="Mínimo 6 caracteres" value={cSenha} onChange={(e) => setCSenha(e.target.value)} required />
             <Campo id="cConfirma" rotulo="Confirmar senha" type="password" placeholder="••••••••" value={cConfirma} onChange={(e) => setCConfirma(e.target.value)} required />
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Documento de identidade (PDF, opcional)</label>
+              <input type="file" accept="application/pdf" onChange={(e) => setCDocIdentidade(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-zinc-500">Comprovante de residência (PDF, opcional)</label>
+              <input type="file" accept="application/pdf" onChange={(e) => setCDocComprovante(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+            </div>
             {erroCad && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-950 dark:text-red-400">{erroCad}</p>}
             <Botao carregando={criando} type="submit" className="mt-1 w-full justify-center">Criar conta</Botao>
           </form>
