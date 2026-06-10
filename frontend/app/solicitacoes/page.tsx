@@ -2,9 +2,9 @@
 
 import { useUsuario } from "@/hooks/useUsuario"
 import { useState } from "react"
-import { Check, X, Plus, ArrowLeft } from "lucide-react"
+import { Check, X, Plus, ArrowLeft, FileText } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
-import { buscarSolicitacoes, aprovarSolicitacao, rejeitarSolicitacao, criarSolicitacao, buscarAnimais } from "@/lib/api"
+import { buscarSolicitacoes, aprovarSolicitacao, rejeitarSolicitacao, criarSolicitacao, buscarAnimais, abrirDocumentoUsuario } from "@/lib/api"
 import type { StatusSolicitacao, Animal, Solicitacao } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor } from "@/components/animais/ui"
@@ -48,6 +48,14 @@ export default function PaginaSolicitacoes() {
     () => buscarAnimais({ status: "disponivel", porPagina: 100 }),
     [modalAberto]
   )
+
+const verDocSolicitante = async (idUsuario: string, tipo: "identidade" | "comprovante") => {
+    try {
+      await abrirDocumentoUsuario(idUsuario, tipo)
+    } catch {
+      alert("Este usuário não enviou esse documento.")
+    }
+  }
 
   const handleAprovar = async (id: string, idUsuario: string, idAnimal: string) => {
     setProcessando(id)
@@ -154,6 +162,16 @@ export default function PaginaSolicitacoes() {
                       </div>
                       <p className="text-xs text-zinc-400">{solic.usuario.email} · {solic.animal.raca}</p>
                       <p className="mt-1 text-[11px] text-zinc-400">{formatarDataHora(solic.criadaEm)}</p>
+                      {ehAdmin && (
+                        <div className="mt-2 flex gap-2">
+                          <button onClick={() => verDocSolicitante(solic.usuario.id, "identidade")} className="flex items-center gap-1 rounded-lg bg-zinc-100 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300">
+                            <FileText size={11} /> Identidade
+                          </button>
+                          <button onClick={() => verDocSolicitante(solic.usuario.id, "comprovante")} className="flex items-center gap-1 rounded-lg bg-zinc-100 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300">
+                            <FileText size={11} /> Comprovante
+                          </button>
+                        </div>
+                      )}
                     </div>
                     {ehAdmin && solic.status === "pendente" && (
                       <div className="flex gap-2">

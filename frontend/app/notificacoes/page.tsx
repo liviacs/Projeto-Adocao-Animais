@@ -1,6 +1,6 @@
 "use client"
-
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Bell, Clock, CheckCircle, XCircle, X, PartyPopper, Calendar } from "lucide-react"
 import { buscarNotificacoes, marcarNotificacaoLida, buscarSolicitacoes, type Notificacao } from "@/lib/api"
 import { useUsuario } from "@/hooks/useUsuario"
@@ -21,6 +21,7 @@ const titulos = {
 
 export default function PaginaNotificacoes() {
   const { ehAdmin } = useUsuario()
+  const router = useRouter()
   const [itens, setItens] = useState<Notificacao[]>([])
   const [carregando, setCarregando] = useState(true)
   const [aberta, setAberta] = useState<Notificacao | null>(null)
@@ -46,6 +47,11 @@ export default function PaginaNotificacoes() {
         await marcarNotificacaoLida(n.id)
         setItens((prev) => prev.map((x) => (x.id === n.id ? { ...x, lida: true } : x)))
       } catch {}
+    }
+    // admin: notificação de nova solicitação leva direto pra página de solicitações
+    if (n.tipo === "nova") {
+      router.push("/solicitacoes")
+      return
     }
     setAberta(n)
     setDetalhe(null)
