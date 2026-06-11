@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const moment = require('moment');
+const log = require('../logger');
 const { verificarToken, verificarAdmin } = require('../auth');
 
 //Todos as solicitações
@@ -145,6 +146,11 @@ router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
     }
 
     await client.query('COMMIT');
+    if (status === 'APROVADA') {
+      await log('sucesso', `Solicitação aprovada: adoção de ${nomeAnimal}`, req.usuario?.email ?? 'admin');
+    } else if (status === 'REPROVADA') {
+      await log('aviso', `Solicitação recusada: ${nomeAnimal}`, req.usuario?.email ?? 'admin');
+    }
     res.json(result.rows[0]);
 
   } catch (error) {

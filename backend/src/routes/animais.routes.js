@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { verificarToken, verificarAdmin } = require('../auth');
+const log = require('../logger');
 const multer = require('multer');
 
 // calcula idade em anos a partir da data de nascimento
@@ -82,12 +83,12 @@ router.post('/', verificarToken, verificarAdmin, async (req, res) => {
        RETURNING *`,
       [nome, especie, raca, idade, data_nascimento || null, sexo, porte || null, cond_saude || null, descricao, status || 'DISPONIVEL', castrado || false, chipado || false]
     );
+    await log('sucesso', `Animal "${nome}" cadastrado`, req.usuario?.email ?? 'admin');
     res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ erro: error.message });
   }
 });
-
 //Atualizar animal
 router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
   try {
@@ -102,6 +103,7 @@ router.put('/:id', verificarToken, verificarAdmin, async (req, res) => {
        RETURNING *`,
       [nome, especie, raca, idade, data_nascimento || null, sexo, porte, cond_saude, descricao, status, castrado || false, chipado || false, id]
     );
+    await log('info', `Animal "${nome}" editado`, req.usuario?.email ?? 'admin');
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ erro: error.message });

@@ -9,6 +9,7 @@ const { SECRET_KEY } = require('../auth');
 
 // Conexão com o banco
 const db = require('../db');
+const log = require('../logger');
 
 router.post('/', async (req, res) => {
   const client = await db.connect();
@@ -50,6 +51,7 @@ router.post('/', async (req, res) => {
       expiresIn: '24h',                   
     });
 
+    await log('info', `${usuario.nome} entrou no sistema`, usuario.email);
     res.json({
       message: 'Login realizado com sucesso',
       token: token,

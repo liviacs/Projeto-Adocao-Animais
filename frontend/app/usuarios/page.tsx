@@ -96,7 +96,7 @@ export default function PaginaUsuarios() {
           <>
             <div className="space-y-2">
               {dados?.dados.map((u) => (
-                <Card key={u.id} className="flex items-center gap-4 p-3">
+                <Card key={u.id} className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4">
                   <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-medium text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
                     {u.nome.slice(0, 2).toUpperCase()}
                   </div>
@@ -105,7 +105,7 @@ export default function PaginaUsuarios() {
                     <p className="text-xs text-zinc-400">{u.email} · {u.telefone || "sem telefone"}</p>
                   </div>
                   <Etiqueta variante={u.perfil} />
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap gap-1">
                     <Botao variante="secundario" tamanho="pequeno" icone={<FileText size={13} />} onClick={() => verDocumento(u.id, "identidade")}>Identidade</Botao>
                     <Botao variante="secundario" tamanho="pequeno" icone={<FileText size={13} />} onClick={() => verDocumento(u.id, "comprovante")}>Comprovante</Botao>
                     <Botao variante="secundario" tamanho="pequeno" icone={<Pencil size={13} />} onClick={() => abrirEdicao(u)}>Editar</Botao>
