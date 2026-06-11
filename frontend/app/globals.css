@@ -12,3 +12,33 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── Cor primária (padrão: emerald) ─────────────────────────────────────────── */
+:root {
+  --cor-50:  #ecfdf5;
+  --cor-100: #d1fae5;
+  --cor-200: #a7f3d0;
+  --cor-400: #34d399;
+  --cor-500: #10b981;
+  --cor-600: #059669;
+  --cor-700: #047857;
+  --cor-800: #065f46;
+  --cor-900: #064e3b;
+  --cor-950: #022c22;
+}
+
+.bg-primario             { background-color: var(--cor-600); }
+.hover\:bg-primario-700:hover { background-color: var(--cor-700); }
+.bg-primario-50          { background-color: var(--cor-50); }
+.bg-primario-100         { background-color: var(--cor-100); }
+.bg-primario-950         { background-color: var(--cor-950); }
+
+.text-primario           { color: var(--cor-600); }
+.text-primario-400       { color: var(--cor-400); }
+.text-primario-700       { color: var(--cor-700); }
+
+.border-primario         { border-color: var(--cor-600); }
+.border-primario-200     { border-color: var(--cor-200); }
+
+.focus\:border-primario:focus { border-color: var(--cor-500); }
+.focus\:ring-primario:focus   { box-shadow: 0 0 0 2px var(--cor-100); }

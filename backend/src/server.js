@@ -20,6 +20,7 @@ const relatoriosRoutes   = require('./routes/relatorios.routes');
 const notificacoesRoutes = require('./routes/notificacoes.routes');
 const vacinasRoutes      = require('./routes/vacinas.routes');
 const documentosRoutes   = require('./routes/documentos.routes');
+const logsRoutes         = require('./routes/logs.routes');
 
 const app = express();
 
@@ -75,6 +76,7 @@ app.use('/api/relatorios',    relatoriosRoutes);
 app.use('/api/notificacoes', notificacoesRoutes);
 app.use('/api/vacinas',      vacinasRoutes);
 app.use('/api/documentos',   documentosRoutes);
+app.use('/api/logs',         logsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Search, Bell } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
+import { useIdioma } from "@/hooks/useIdioma"
 import { buscarEstatisticas, buscarNotificacoes } from "@/lib/api"
 import { BarraLateral } from "./BarraLateral"
 

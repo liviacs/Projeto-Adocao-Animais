@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, PawPrint, Heart, X } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
+import { useIdioma } from "@/hooks/useIdioma"
 import { buscarAnimal, criarSolicitacao, buscarVacinas, salvarVacinas, statusDocumentosPet, abrirDocumentoPet, enviarDocumentosPet, verificarDocumentosUsuario, enviarDocumentosUsuario } from "@/lib/api"
 import { useUsuario } from "@/hooks/useUsuario"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
@@ -32,6 +33,7 @@ const vacinasPorEspecie: Record<string, { campo: string; rotulo: string }[]> = {
 }
 
 export default function PaginaDetalheAnimal() {
+  const { t } = useIdioma()
   const params = useParams()
   const router = useRouter()
   const id = String(params.id)
@@ -183,7 +185,7 @@ export default function PaginaDetalheAnimal() {
 
   return (
     <Layout>
-      <BarraSuperior titulo="Detalhes do pet" />
+      <BarraSuperior titulo={t("tituloDetalhesPet")} />
 
       <div className="p-6">
         <button

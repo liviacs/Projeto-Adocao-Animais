@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useConsulta } from "@/hooks/useConsulta"
+import { useIdioma } from "@/hooks/useIdioma"
 import { buscarUsuarios } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"

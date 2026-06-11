@@ -5,6 +5,7 @@ import { User, Lock, FileText } from "lucide-react"
 import { atualizarPerfil, enviarDocumentosUsuario, verificarDocumentosUsuario } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
+import { useIdioma } from "@/hooks/useIdioma"
 
 function formatarCpf(v: string): string {
   return v.replace(/\D/g, "").slice(0, 11)
@@ -23,6 +24,7 @@ const opcoesOrientacao = [
 ]
 
 export default function PaginaPerfil() {
+  const { t } = useIdioma()
   const [id, setId] = useState("")
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
@@ -146,7 +148,7 @@ export default function PaginaPerfil() {
 
   return (
     <Layout>
-      <BarraSuperior titulo="Meu perfil" />
+      <BarraSuperior titulo={t("tituloPerfil")} />
 
       <div className="mx-auto max-w-xl space-y-4 p-6">
 

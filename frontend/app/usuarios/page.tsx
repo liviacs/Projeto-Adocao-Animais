@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Pencil, Trash2, X, FileText } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
+import { useIdioma } from "@/hooks/useIdioma"
 import { buscarUsuarios, atualizarUsuarioAdmin, excluirUsuario, abrirDocumentoUsuario } from "@/lib/api"
 import type { Usuario } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"

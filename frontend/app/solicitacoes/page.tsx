@@ -4,6 +4,7 @@ import { useUsuario } from "@/hooks/useUsuario"
 import { useState } from "react"
 import { Check, X, Plus, ArrowLeft, FileText } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
+import { useIdioma } from "@/hooks/useIdioma"
 import { buscarSolicitacoes, aprovarSolicitacao, rejeitarSolicitacao, criarSolicitacao, buscarAnimais, abrirDocumentoUsuario } from "@/lib/api"
 import type { StatusSolicitacao, Animal, Solicitacao } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
@@ -25,6 +26,7 @@ const motivosRejeicao = [
 ]
 
 export default function PaginaSolicitacoes() {
+  const { t } = useIdioma()
   const { usuario, ehAdmin } = useUsuario()
   const [status, setStatus] = useState<StatusSolicitacao | "">("")
   const [pagina, setPagina] = useState(1)
@@ -123,7 +125,7 @@ const verDocSolicitante = async (idUsuario: string, tipo: "identidade" | "compro
 
   return (
     <Layout>
-      <BarraSuperior titulo="Solicitações de adoção" />
+      <BarraSuperior titulo={t("tituloSolicitacoesAdocao")} />
 
       <div className="space-y-4 p-6">
         <div className="flex items-center justify-between gap-3">

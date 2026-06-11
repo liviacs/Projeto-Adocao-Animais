@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useConsulta } from "@/hooks/useConsulta"
+import { useIdioma } from "@/hooks/useIdioma"
 import { buscarDadosRelatorios } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Card, Carregando, Seletor } from "@/components/animais/ui"
@@ -38,6 +39,7 @@ function CardGrafico({ titulo, children, full }: { titulo: string; children: Rea
 }
 
 export default function PaginaRelatorios() {
+  const { t } = useIdioma()
   const [especie, setEspecie] = useState("")
   const { dados, carregando } = useConsulta(() => buscarDadosRelatorios(especie), [especie])
 
@@ -51,7 +53,7 @@ export default function PaginaRelatorios() {
 
   return (
     <Layout>
-      <BarraSuperior titulo="Relatórios" />
+      <BarraSuperior titulo={t("tituloRelatorios")} />
       <div className="space-y-5 p-6">
 
         {/* gradiente reaproveitável (fora do grid pra não ocupar célula) */}

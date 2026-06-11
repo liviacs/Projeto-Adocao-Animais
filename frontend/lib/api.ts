@@ -626,3 +626,30 @@ export const redefinirSenha = (email: string, token: string, novaSenha: string) 
     method: "POST",
     body: JSON.stringify({ email, token, novaSenha }),
   })
+
+  // ── Logs ──────────────────────────────────────────────────────────────────────
+
+export interface LogSistema {
+  id: string
+  tipo: "sucesso" | "info" | "aviso" | "erro"
+  mensagem: string
+  usuario: string
+  data: string
+}
+
+export const buscarLogs = async (filtros: { tipo?: string; busca?: string; limite?: number } = {}): Promise<LogSistema[]> => {
+  const params = new URLSearchParams()
+  if (filtros.tipo && filtros.tipo !== "todos") params.set("tipo", filtros.tipo)
+  if (filtros.busca) params.set("busca", filtros.busca)
+  if (filtros.limite) params.set("limite", String(filtros.limite))
+
+  const query = params.toString() ? `?${params.toString()}` : ""
+  const bruto = await requisitar<any[]>(`/logs${query}`)
+  return (Array.isArray(bruto) ? bruto : []).map((l) => ({
+    id:       String(l.id_log),
+    tipo:     l.tipo,
+    mensagem: l.mensagem,
+    usuario:  l.usuario,
+    data:     l.data_criacao,
+  }))
+}

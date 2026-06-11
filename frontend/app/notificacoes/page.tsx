@@ -7,6 +7,7 @@ import { useUsuario } from "@/hooks/useUsuario"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Card, Vazio, Carregando, Botao } from "@/components/animais/ui"
 import { formatarDataHora } from "@/lib/utils"
+import { useIdioma } from "@/hooks/useIdioma"
 
 const estilos = {
   nova:      { icone: Clock,       cor: "text-amber-600 bg-amber-50 dark:bg-amber-950" },
@@ -22,6 +23,7 @@ const titulos = {
 export default function PaginaNotificacoes() {
   const { ehAdmin } = useUsuario()
   const router = useRouter()
+  const { t } = useIdioma()
   const [itens, setItens] = useState<Notificacao[]>([])
   const [carregando, setCarregando] = useState(true)
   const [aberta, setAberta] = useState<Notificacao | null>(null)
@@ -80,7 +82,7 @@ export default function PaginaNotificacoes() {
 
   return (
     <Layout>
-      <BarraSuperior titulo="Notificações" />
+      <BarraSuperior titulo={t("tituloNotificacoes")} />
       <div className="mx-auto max-w-2xl p-6">
         <div className="max-h-[calc(100vh-9rem)] space-y-3 overflow-y-auto pr-1">
           {carregando ? (

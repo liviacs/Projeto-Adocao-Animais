@@ -6,6 +6,9 @@ import { ArrowLeft, Upload } from "lucide-react"
 import { criarAnimal, enviarFotoAnimal, salvarVacinas, enviarDocumentosPet } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
+import { useIdioma } from "@/hooks/useIdioma"
+
+const { t } = useIdioma()
 
 const opcoesEspecie = [
   { valor: "Cachorro", rotulo: "Cachorro" },
@@ -127,7 +130,7 @@ export default function PaginaNovoAnimal() {
 
   return (
     <Layout>
-      <BarraSuperior titulo="Cadastrar animal" />
+      <BarraSuperior titulo={t("tituloCadastrarAnimal")} />
 
       <div className="mx-auto max-w-2xl p-6">
         <button

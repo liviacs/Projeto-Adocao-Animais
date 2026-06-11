@@ -15,29 +15,33 @@ import {
   LogOut,
 } from "lucide-react"
 import { cn, iniciais } from "@/lib/utils"
+import { useIdioma } from "@/hooks/useIdioma"
 
 const itensNav = [
   {
     secao: "Principal",
+    chaveSecao: "secaoPrincipal",
     links: [
-      { href: "/dashboard",     rotulo: "Dashboard",      icone: LayoutDashboard, admin: true },
-      { href: "/animais",       rotulo: "Animais",        icone: PawPrint },
-      { href: "/solicitacoes",  rotulo: "Solicitações",   icone: ClipboardList, mostraBadge: true },
+      { href: "/dashboard",     rotulo: "Dashboard",      chave: "dashboard",     icone: LayoutDashboard, admin: true },
+      { href: "/animais",       rotulo: "Animais",        chave: "animais",       icone: PawPrint },
+      { href: "/solicitacoes",  rotulo: "Solicitações",   chave: "solicitacoes",  icone: ClipboardList, mostraBadge: true },
     ],
   },
   {
     secao: "Gestão",
+    chaveSecao: "secaoGestao",
     links: [
-      { href: "/usuarios",   rotulo: "Usuários",    icone: Users, admin: true },
-      { href: "/relatorios", rotulo: "Relatórios",  icone: BarChart2, admin: true },
+      { href: "/usuarios",   rotulo: "Usuários",    chave: "usuarios",   icone: Users, admin: true },
+      { href: "/relatorios", rotulo: "Relatórios",  chave: "relatorios", icone: BarChart2, admin: true },
     ],
   },
   {
     secao: "Sistema",
+    chaveSecao: "secaoSistema",
     links: [
-      { href: "/notificacoes", rotulo: "Notificações",    icone: Bell },
-      { href: "/logs",         rotulo: "Logs do sistema", icone: ScrollText, admin: true },
-      { href: "/configuracoes",rotulo: "Configurações",   icone: Settings },
+      { href: "/notificacoes", rotulo: "Notificações",    chave: "notificacoes",  icone: Bell },
+      { href: "/logs",         rotulo: "Logs do sistema", chave: "logs",          icone: ScrollText, admin: true },
+      { href: "/configuracoes",rotulo: "Configurações",   chave: "configuracoes", icone: Settings },
     ],
   },
 ]
@@ -49,6 +53,7 @@ interface BarraLateralProps {
 export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useIdioma()
   const [usuario, setUsuario] = useState<{ nome?: string; email?: string; tipo?: string } | null>(null)
   useEffect(() => {
     const u = localStorage.getItem("usuario")
@@ -75,15 +80,15 @@ export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
 
       {/* Navegação */}
       <nav className="flex-1 overflow-y-auto px-2 py-1">
-        {itensNav.map(({ secao, links }) => {
+        {itensNav.map(({ secao, chaveSecao, links }) => {
           const linksVisiveis = links.filter((l: any) => !l.admin || ehAdmin)
           if (linksVisiveis.length === 0) return null
           return (
           <div key={secao} className="mb-3">
             <p className="mb-1 px-2 text-[10px] font-medium uppercase tracking-widest text-zinc-400">
-              {secao}
+              {t(chaveSecao)}
             </p>
-            {linksVisiveis.map(({ href, rotulo, icone: Icone, mostraBadge }) => {
+            {linksVisiveis.map(({ href, rotulo, chave, icone: Icone, mostraBadge }) => {
               const ativo = pathname.startsWith(href)
               return (
                 <Link
@@ -97,7 +102,7 @@ export function BarraLateral({ solicitacoesPendentes = 0 }: BarraLateralProps) {
                   )}
                 >
                   <Icone size={15} />
-                  <span className="flex-1">{rotulo}</span>
+                  <span className="flex-1">{t(chave)}</span>
                   {mostraBadge && solicitacoesPendentes > 0 && (
                     <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-medium text-white">
                       {solicitacoesPendentes}
