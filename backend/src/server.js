@@ -23,6 +23,7 @@ const documentosRoutes   = require('./routes/documentos.routes');
 const logsRoutes         = require('./routes/logs.routes');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Segurança de cabeçalhos HTTP
 app.use(helmet({
