@@ -14,20 +14,15 @@ function calcularIdade(dataNascimento) {
   if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) anos--;
   return anos < 0 ? 0 : anos;
 }
-const path = require('path');
-
-// configura onde e como salvar as fotos
-const armazenamento = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../../database/fotos'));
-  },
-  filename: (req, file, cb) => {
-    // nome único: timestamp + extensão original
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}${ext}`);
+// multer em memória — a foto vira buffer, gravada direto no BYTEA (igual aos documentos)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Apenas imagens são aceitas'));
   },
 });
-const upload = multer({ storage: armazenamento });
 
 //Todos os animais
 router.get('/', verificarToken, async (req, res) => {
@@ -40,6 +35,22 @@ router.get('/', verificarToken, async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ erro: err.message });
+  }
+});
+
+// Servir a imagem de uma foto (lê o BYTEA do banco, igual aos documentos)
+// IMPORTANTE: precisa vir ANTES de /:id para não conflitar
+router.get('/fotos/:idFoto', async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT imagem, tipo_mime FROM fotos_animais WHERE id_foto = $1`,
+      [req.params.idFoto]
+    );
+    if (!result.rows[0]?.imagem) return res.status(404).json({ erro: 'Foto não encontrada' });
+    res.setHeader('Content-Type', result.rows[0].tipo_mime || 'image/jpeg');
+    res.send(result.rows[0].imagem);
+  } catch (error) {
+    res.status(500).json({ erro: error.message });
   }
 });
 
@@ -104,15 +115,16 @@ router.post('/:id/fotos', upload.single('foto'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ erro: 'Nenhuma foto enviada' });
     }
-    // grava só o nome do arquivo (as fotos são servidas em /img/<nome>)
+    // grava o binário da imagem no banco (BYTEA), igual aos documentos
     const result = await db.query(
-      `INSERT INTO fotos_animais (id_animal, caminho_foto) VALUES ($1, $2) RETURNING *`,
-      [id, req.file.filename]
+      `INSERT INTO fotos_animais (id_animal, imagem, tipo_mime) VALUES ($1, $2, $3) RETURNING id_foto`,
+      [id, req.file.buffer, req.file.mimetype]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ erro: error.message });
   }
 });
+
 
 module.exports = router;
