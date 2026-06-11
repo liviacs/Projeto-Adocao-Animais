@@ -90,4 +90,4 @@ app.use((err, _req, res, _next) => {
 });
 
 const PORT = process.env.PORT || 3005;
-app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Backend rodando na porta ${PORT}`));
