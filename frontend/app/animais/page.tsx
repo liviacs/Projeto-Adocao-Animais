@@ -27,6 +27,28 @@ const opcoesEspecie = [
   { valor: "passaro",  rotulo: "Pássaro" },
   { valor: "outro",    rotulo: "Outro" },
 ]
+
+// formata idade em anos e meses a partir da data de nascimento
+function formatarIdade(dataNascimento?: string, idadeFallback?: number): string {
+  if (!dataNascimento) {
+    if (idadeFallback != null) return `${idadeFallback} ${idadeFallback === 1 ? "ano" : "anos"}`
+    return "Idade desconhecida"
+  }
+  const nasc = new Date(dataNascimento)
+  const hoje = new Date()
+  let anos = hoje.getFullYear() - nasc.getFullYear()
+  let meses = hoje.getMonth() - nasc.getMonth()
+  if (hoje.getDate() < nasc.getDate()) meses--
+  if (meses < 0) { anos--; meses += 12 }
+
+  const pAnos = anos > 0 ? `${anos} ${anos === 1 ? "ano" : "anos"}` : ""
+  const pMeses = meses > 0 ? `${meses} ${meses === 1 ? "mês" : "meses"}` : ""
+  if (pAnos && pMeses) return `${pAnos} e ${pMeses}`
+  if (pAnos) return pAnos
+  if (pMeses) return pMeses
+  return "Recém-nascido"
+}
+
 // opções no formato que o backend espera (para o modal de edição)
 const opcoesEspecieEdit = [
   { valor: "Cachorro", rotulo: "Cachorro" },
@@ -221,7 +243,7 @@ export default function PaginaAnimais() {
                   <div className="p-3">
                     <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{animal.nome}</p>
                     <p className="mb-2 text-xs text-zinc-400">
-                      {animal.raca} · {animal.idade} {animal.unidadeIdade === "meses" ? "meses" : "anos"}
+                      {animal.raca} · {formatarIdade(animal.dataNascimento, animal.idade)}
                     </p>
                     <div className="flex items-center justify-between">
                       <Etiqueta variante={animal.status} />
