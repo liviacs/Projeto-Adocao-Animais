@@ -95,7 +95,7 @@ export function Botao({
 interface CardProps {
   children: React.ReactNode
   className?: string
-  onClick?: () => void
+  onClick?: (ev: React.MouseEvent) => void
 }
 
 export function Card({ children, className, onClick }: CardProps) {

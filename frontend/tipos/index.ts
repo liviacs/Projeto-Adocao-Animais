@@ -19,6 +19,9 @@ export interface Animal {
   descricao: string
   fotos: string[]
   peso?: number
+  porte?: string
+  dataNascimento?: string
+  condSaude?: string
   vacinado: boolean
   castrado: boolean
   chipado: boolean

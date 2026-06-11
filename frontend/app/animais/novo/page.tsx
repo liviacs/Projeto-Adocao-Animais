@@ -8,8 +8,6 @@ import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Campo, Seletor } from "@/components/animais/ui"
 import { useIdioma } from "@/hooks/useIdioma"
 
-const { t } = useIdioma()
-
 const opcoesEspecie = [
   { valor: "Cachorro", rotulo: "Cachorro" },
   { valor: "Gato",     rotulo: "Gato" },
@@ -50,7 +48,7 @@ const vacinasPorEspecie: Record<string, { campo: string; rotulo: string }[]> = {
 
 export default function PaginaNovoAnimal() {
   const router = useRouter()
-
+  const { t } = useIdioma()
   const [nome, setNome] = useState("")
   const [especie, setEspecie] = useState("Cachorro")
   const [raca, setRaca] = useState("")

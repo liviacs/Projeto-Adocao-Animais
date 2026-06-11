@@ -103,14 +103,15 @@ export default function PaginaAnimais() {
     setPagina(1)
   }
 
-  const abrirEdicao = (animal: Animal) => {
-    setEditando(animal)
+  const abrirEdicao = (animalOrig: Animal) => {
+    const animal: any = animalOrig
+    setEditando(animalOrig)
     setEdNome(animal.nome ?? "")
     setEdEspecie(paraEspecieBackend[animal.especie] ?? "Cachorro")
     setEdRaca(animal.raca ?? "")
     setEdDataNascimento((animal as any).dataNascimento ? String((animal as any).dataNascimento).slice(0, 10) : "")
     setEdSexo(paraSexoBackend[(animal.sexo ?? "").toLowerCase()] ?? "Macho")
-    setEdPorte(paraPorteBackend[(animal.porte ?? "").toLowerCase()] ?? "Médio")
+    setEdPorte(paraPorteBackend[((animal as any).porte ?? "").toLowerCase()] ?? "Médio")
     setEdStatus(paraStatusBackend[animal.status] ?? "DISPONIVEL")
     setEdCondSaude((animal as any).condSaude ?? (animal as any).cond_saude ?? "")
     setEdCastrado(!!animal.castrado)
