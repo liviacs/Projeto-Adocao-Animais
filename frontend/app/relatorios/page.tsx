@@ -29,7 +29,7 @@ const TooltipCustom = ({ active, payload, label }: any) => {
 
 function CardGrafico({ titulo, children, full }: { titulo: string; children: React.ReactNode; full?: boolean }) {
   return (
-    <Card className={`p-5 ${full ? "col-span-2" : ""}`}>
+    <Card className={`p-5 ${full ? "lg:col-span-2" : ""}`}>
       <p className="mb-4 text-xs font-medium uppercase tracking-wide text-zinc-400">{titulo}</p>
       <div style={{ width: "100%", height: 240 }}>
         <ResponsiveContainer>{children as any}</ResponsiveContainer>
