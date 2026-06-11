@@ -14,7 +14,7 @@ Abre em: http://localhost:3000
 Crie um arquivo `.env.local` na raiz:
 
 ```
-NEXT_PUBLIC_URL_API=http://localhost:3001/api
+NEXT_PUBLIC_URL_API=http://localhost:3005/api
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=coloca-qualquer-coisa-aqui
 ```

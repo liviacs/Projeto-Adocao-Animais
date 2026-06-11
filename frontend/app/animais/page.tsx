@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Plus, PawPrint, Pencil, X } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
 import { useIdioma } from "@/hooks/useIdioma"
-import { buscarAnimais, atualizarAnimal } from "@/lib/api"
+import { buscarAnimais, atualizarAnimal, enviarFotoAnimal } from "@/lib/api"
 import type { StatusAnimal, EspecieAnimal, Animal } from "@/tipos"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Botao, Card, Etiqueta, Vazio, Carregando, Seletor, Campo } from "@/components/animais/ui"
@@ -89,6 +89,7 @@ export default function PaginaAnimais() {
   const [edCondSaude, setEdCondSaude] = useState("")
   const [edCastrado, setEdCastrado] = useState(false)
   const [edChipado, setEdChipado] = useState(false)
+  const [edFoto, setEdFoto] = useState<File | null>(null)
   const [salvandoEd, setSalvandoEd] = useState(false)
   const [msgEd, setMsgEd] = useState("")
 
@@ -117,6 +118,7 @@ export default function PaginaAnimais() {
     setEdCondSaude((animal as any).condSaude ?? (animal as any).cond_saude ?? "")
     setEdCastrado(!!animal.castrado)
     setEdChipado(!!animal.chipado)
+    setEdFoto(null)
     setMsgEd("")
   }
 
@@ -137,6 +139,9 @@ export default function PaginaAnimais() {
         castrado: edCastrado,
         chipado: edChipado,
       } as any)
+      if (edFoto) {
+        await enviarFotoAnimal(editando.id, edFoto)
+      }
       setEditando(null)
       recarregar()
     } catch (e) {
@@ -299,6 +304,10 @@ export default function PaginaAnimais() {
               </div>
             </div>
 
+            <div className="mt-4">
+              <label className="mb-1 block text-sm text-zinc-700 dark:text-zinc-300">Trocar foto</label>
+              <input type="file" accept="image/*" onChange={(e) => setEdFoto(e.target.files?.[0] ?? null)} className="block w-full text-xs text-zinc-500 file:mr-2 file:rounded file:border-0 file:bg-zinc-100 file:px-2 file:py-1 file:text-xs dark:file:bg-zinc-800 dark:file:text-zinc-300" />
+            </div>
             {msgEd && (
               <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-950 dark:text-red-400">{msgEd}</p>
             )}

@@ -254,7 +254,9 @@ ALTER SEQUENCE public.favoritos_id_favorito_seq OWNED BY public.favoritos.id_fav
 CREATE TABLE public.fotos_animais (
     id_foto integer NOT NULL,
     id_animal integer NOT NULL,
-    caminho_foto character varying(255) NOT NULL
+    caminho_foto character varying(255),
+    imagem bytea,
+    tipo_mime character varying(100)
 );
 
 

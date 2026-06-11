@@ -115,7 +115,8 @@ router.post('/:id/fotos', upload.single('foto'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ erro: 'Nenhuma foto enviada' });
     }
-    // grava o binário da imagem no banco (BYTEA), igual aos documentos
+    // remove fotos antigas (mantém só a mais recente) e grava o binário no BYTEA
+    await db.query(`DELETE FROM fotos_animais WHERE id_animal = $1`, [id]);
     const result = await db.query(
       `INSERT INTO fotos_animais (id_animal, imagem, tipo_mime) VALUES ($1, $2, $3) RETURNING id_foto`,
       [id, req.file.buffer, req.file.mimetype]
