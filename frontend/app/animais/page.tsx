@@ -66,6 +66,7 @@ const paraStatusBackend: Record<string, string> = {
 }
 
 export default function PaginaAnimais() {
+  
   const router = useRouter()
   const { ehAdmin } = useUsuario()
   const opcoesStatusVisiveis = ehAdmin
