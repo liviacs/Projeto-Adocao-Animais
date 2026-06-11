@@ -54,7 +54,7 @@ export default function PaginaRelatorios() {
   return (
     <Layout>
       <BarraSuperior titulo={t("tituloRelatorios")} />
-      <div className="space-y-5 p-6">
+      <div className="space-y-5 p-4 sm:p-6">
 
         {/* gradiente reaproveitável (fora do grid pra não ocupar célula) */}
         <svg width="0" height="0" className="absolute">
@@ -78,7 +78,7 @@ export default function PaginaRelatorios() {
         </div>
 
         {/* Destaques */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Card className="flex flex-col p-5">
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-400">
               Aprovação {especie ? `· ${especie}` : "geral"}

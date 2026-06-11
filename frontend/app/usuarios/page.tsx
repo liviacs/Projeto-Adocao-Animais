@@ -87,7 +87,7 @@ export default function PaginaUsuarios() {
         aoBuscar={(v) => { setBusca(v); setPagina(1) }}
       />
 
-      <div className="space-y-4 p-6">
+      <div className="space-y-4 p-4 sm:p-6">
         {carregando ? (
           <div className="flex justify-center py-20"><Carregando /></div>
         ) : dados?.dados.length === 0 ? (

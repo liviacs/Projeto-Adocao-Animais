@@ -227,7 +227,7 @@ export default function PaginaAnimais() {
           />
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-4 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {dados?.dados.map((animal) => (
                 <Card
                   key={animal.id}
@@ -289,7 +289,7 @@ export default function PaginaAnimais() {
               <button onClick={() => setEditando(null)} className="text-zinc-400 hover:text-zinc-600"><X size={16} /></button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="col-span-2">
                 <Campo id="edNome" rotulo="Nome" value={edNome} onChange={(e) => setEdNome(e.target.value)} />
               </div>

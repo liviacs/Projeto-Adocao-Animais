@@ -180,7 +180,7 @@ export default function PaginaConfiguracoes() {
     <Layout>
       <BarraSuperior titulo={t.titulo} />
 
-      <div className="mx-auto max-w-xl space-y-4 p-6">
+      <div className="mx-auto max-w-xl space-y-4 p-4 sm:p-6">
 
         {/* Notificações */}
         <Card className="p-5">

@@ -127,7 +127,7 @@ const verDocSolicitante = async (idUsuario: string, tipo: "identidade" | "compro
     <Layout>
       <BarraSuperior titulo={t("tituloSolicitacoesAdocao")} />
 
-      <div className="space-y-4 p-6">
+     <div className="space-y-4 p-4 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <Seletor
             opcoes={opcoesStatus}
@@ -149,14 +149,14 @@ const verDocSolicitante = async (idUsuario: string, tipo: "identidade" | "compro
             <div className="space-y-3">
               {dados?.dados.map((solic) => (
                 <Card key={solic.id} className="p-4">
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
                       {solic.animal.fotos[0] && (
                         <img src={solic.animal.fotos[0]} alt={solic.animal.nome} className="h-full w-full object-cover" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="mb-0.5 flex items-center gap-2">
+                      <div className="mb-0.5 flex flex-wrap items-center gap-2">
                         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{solic.usuario.nome}</p>
                         <span className="text-xs text-zinc-400">quer adotar</span>
                         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{solic.animal.nome}</p>
@@ -165,7 +165,7 @@ const verDocSolicitante = async (idUsuario: string, tipo: "identidade" | "compro
                       <p className="text-xs text-zinc-400">{solic.usuario.email} · {solic.animal.raca}</p>
                       <p className="mt-1 text-[11px] text-zinc-400">{formatarDataHora(solic.criadaEm)}</p>
                       {ehAdmin && (
-                        <div className="mt-2 flex gap-2">
+                        <div className="mt-2 flex flex-wrap gap-2">
                           <button onClick={() => verDocSolicitante(solic.usuario.id, "identidade")} className="flex items-center gap-1 rounded-lg bg-zinc-100 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300">
                             <FileText size={11} /> Identidade
                           </button>
@@ -176,7 +176,7 @@ const verDocSolicitante = async (idUsuario: string, tipo: "identidade" | "compro
                       )}
                     </div>
                     {ehAdmin && solic.status === "pendente" && (
-                      <div className="flex gap-2">
+                      <div className="flex flex-shrink-0 flex-wrap gap-2">
                         <Botao variante="secundario" tamanho="pequeno" icone={<Check size={13} className="text-emerald-600" />} carregando={processando === solic.id} onClick={() => handleAprovar(solic.id, solic.usuario.id, solic.animal.id)}>Aprovar</Botao>
                         <Botao variante="perigo" tamanho="pequeno" icone={<X size={13} />} onClick={() => setSolicRejeitar(solic)}>Rejeitar</Botao>
                       </div>

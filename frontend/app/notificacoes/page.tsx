@@ -83,7 +83,7 @@ export default function PaginaNotificacoes() {
   return (
     <Layout>
       <BarraSuperior titulo={t("tituloNotificacoes")} />
-      <div className="mx-auto max-w-2xl p-6">
+      <div className="mx-auto max-w-2xl p-4 sm:p-6">
         <div className="max-h-[calc(100vh-9rem)] space-y-3 overflow-y-auto pr-1">
           {carregando ? (
             <div className="flex justify-center py-20"><Carregando /></div>

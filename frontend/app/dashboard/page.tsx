@@ -28,7 +28,7 @@ export default function PaginaDashboard() {
       <div className="space-y-6 p-6">
 
         {/* Estatísticas */}
-        <div className="grid grid-cols-4 gap-4">
+         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {carregandoStats ? (
             Array.from({ length: 4 }).map((_, i) => (
               <Card key={i} className="flex h-24 items-center justify-center">
@@ -45,7 +45,7 @@ export default function PaginaDashboard() {
           )}
         </div>
 
-        <div className="grid grid-cols-[1fr_340px] gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
 
           {/* Animais recentes */}
           <Card>

@@ -150,7 +150,7 @@ export default function PaginaPerfil() {
     <Layout>
       <BarraSuperior titulo={t("tituloPerfil")} />
 
-      <div className="mx-auto max-w-xl space-y-4 p-6">
+      <div className="mx-auto max-w-xl space-y-4 p-4 sm:p-6">
 
         {/* Seção 1: dados pessoais */}
         <Card className="p-5">

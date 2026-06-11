@@ -68,7 +68,7 @@ export default function PaginaLogs() {
     <Layout>
       <BarraSuperior titulo={t("tituloLogs")} />
 
-      <div className="mx-auto max-w-3xl p-6">
+      <div className="mx-auto max-w-3xl p-4 sm:p-6">
         {/* Exportação de relatórios CSV */}
         <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-400">Exportar relatórios (CSV)</p>
         <div className="mb-8 grid gap-3 sm:grid-cols-3">

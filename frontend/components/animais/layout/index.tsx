@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Bell } from "lucide-react"
+import { Search, Bell, PawPrint } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
 import { useIdioma } from "@/hooks/useIdioma"
 import { buscarEstatisticas, buscarNotificacoes } from "@/lib/api"
@@ -12,6 +12,7 @@ import { BarraLateral } from "./BarraLateral"
 export function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [verificado, setVerificado] = useState(false)
+  const [menuAberto, setMenuAberto] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -24,13 +25,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const { dados } = useConsulta(buscarEstatisticas)
 
-  // enquanto verifica o token, não renderiza nada (evita "piscar" a tela protegida)
   if (!verificado) return null
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
-      <BarraLateral solicitacoesPendentes={dados?.solicitacoesPendentes ?? 0} />
+      <BarraLateral
+        solicitacoesPendentes={dados?.solicitacoesPendentes ?? 0}
+        aberto={menuAberto}
+        aoFechar={() => setMenuAberto(false)}
+      />
       <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex items-center gap-2.5 border-b border-zinc-200 bg-white px-4 py-3 lg:hidden dark:border-zinc-800 dark:bg-zinc-950">
+          <button
+            onClick={() => setMenuAberto(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white"
+            title="Abrir menu"
+            aria-label="Abrir menu"
+          >
+            <PawPrint size={16} />
+          </button>
+          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">PetAdopt</p>
+        </div>
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
