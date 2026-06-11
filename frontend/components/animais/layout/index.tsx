@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Search, Bell } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
@@ -10,7 +10,23 @@ import { BarraLateral } from "./BarraLateral"
 
 // ── Layout principal ──────────────────────────────────────────────────────────
 export function Layout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const [verificado, setVerificado] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.replace("/auth")
+    } else {
+      setVerificado(true)
+    }
+  }, [router])
+
   const { dados } = useConsulta(buscarEstatisticas)
+
+  // enquanto verifica o token, não renderiza nada (evita "piscar" a tela protegida)
+  if (!verificado) return null
+
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
       <BarraLateral solicitacoesPendentes={dados?.solicitacoesPendentes ?? 0} />
