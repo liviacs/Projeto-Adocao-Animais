@@ -6,6 +6,8 @@ import { PawPrint } from "lucide-react"
 import { Botao, Campo, Seletor } from "@/components/animais/ui"
 import { enviarDocumentosUsuario } from "@/lib/api"
 
+const URL_API = process.env.NEXT_PUBLIC_URL_API ?? "http://localhost:3005/api"
+
 function formatarCpf(v: string): string {
   return v.replace(/\D/g, "").slice(0, 11)
     .replace(/(\d{3})(\d)/, "$1.$2")
@@ -48,7 +50,7 @@ export default function PaginaLogin() {
 
   // faz login e entra (reutilizado no entrar e no cadastro automático)
   const fazerLogin = async (emailLogin: string, senhaLogin: string) => {
-    const response = await fetch("http://localhost:3005/api/auth", {
+    const response = await fetch(`${URL_API}/auth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: emailLogin, senha: senhaLogin }),
@@ -96,7 +98,7 @@ export default function PaginaLogin() {
     setCriando(true)
     try {
       // cria o usuário SEM enviar tipo → backend define como ADOTANTE
-      const resp = await fetch("http://localhost:3005/api/usuarios/registro", {
+      const resp = await fetch(`${URL_API}/usuarios/registro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome: cNome, email: cEmail, telefone: cTelefone, senha: cSenha, cpf: cCpf, orientacao_sexual: cOrientacao || null }),
@@ -109,7 +111,7 @@ export default function PaginaLogin() {
       }
       // se anexou documentos: loga (pra ter token), envia os docs e redireciona
       if (cDocIdentidade || cDocComprovante) {
-        const respLogin = await fetch("http://localhost:3005/api/auth", {
+        const respLogin = await fetch(`${URL_API}/auth`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: cEmail, senha: cSenha }),

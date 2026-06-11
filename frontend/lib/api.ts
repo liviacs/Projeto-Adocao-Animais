@@ -12,6 +12,7 @@ import type {
 } from "@/tipos"
 
 const URL_API = process.env.NEXT_PUBLIC_URL_API ?? "http://localhost:3005/api"
+const URL_SERVIDOR = URL_API.replace(/\/api$/, "")
 
 async function requisitar<T>(caminho: string, opcoes?: RequestInit): Promise<T> {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
@@ -106,7 +107,7 @@ function adaptarAnimal(bruto: any): Animal {
     status: adaptarStatusAnimal(bruto.status ?? ""),
     descricao: bruto.descricao ?? "",
     fotos: bruto.caminho_foto
-  ? [`http://localhost:3005/img/${bruto.caminho_foto}`]
+  ? [`${URL_SERVIDOR}/img/${bruto.caminho_foto}`]
   : [],
     peso: bruto.peso != null ? Number(bruto.peso) : undefined,
     vacinado: saude.includes("vacinad"),

@@ -41,7 +41,7 @@ app.use(rateLimit({
 
 // CORS configurado para o frontend
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -89,5 +89,5 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ erro: 'Erro interno do servidor' });
 });
 
-const PORT = 3005;
+const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));
