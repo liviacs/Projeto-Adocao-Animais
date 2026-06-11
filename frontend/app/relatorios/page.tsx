@@ -124,7 +124,7 @@ export default function PaginaRelatorios() {
         {carregando ? (
           <div className="flex justify-center py-20"><Carregando /></div>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <CardGrafico titulo="Solicitações por status">
               <BarChart data={dados?.porStatus ?? []}>
                 <XAxis dataKey="nome" fontSize={11} stroke="#a1a1aa" tickLine={false} axisLine={false} />
