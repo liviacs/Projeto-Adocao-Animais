@@ -6,6 +6,7 @@ import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { Card, Vazio, Carregando, Botao } from "@/components/animais/ui"
 import { buscarLogs, baixarRelatorio, type LogSistema } from "@/lib/api"
 import { useIdioma } from "@/hooks/useIdioma"
+import { useApenasAdmin } from "@/hooks/useApenasAdmin"
 
 type TipoLog = "info" | "aviso" | "erro" | "sucesso"
 
@@ -27,6 +28,7 @@ function formatarData(iso: string) {
 }
 
 export default function PaginaLogs() {
+  const liberado = useApenasAdmin()
   const { t } = useIdioma()
   const [logs, setLogs] = useState<LogSistema[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -63,6 +65,8 @@ export default function PaginaLogs() {
       setBaixando(null)
     }
   }
+
+  if (!liberado) return null
 
   return (
     <Layout>

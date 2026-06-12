@@ -3,13 +3,16 @@
 import { PawPrint, Heart, Clock, Users } from "lucide-react"
 import { useConsulta } from "@/hooks/useConsulta"
 import { useIdioma } from "@/hooks/useIdioma"
+import { useApenasAdmin } from "@/hooks/useApenasAdmin"
 import { buscarEstatisticas, buscarAnimais, buscarSolicitacoes } from "@/lib/api"
 import { Layout, BarraSuperior } from "@/components/animais/layout"
 import { CardEstatistica, Card, Etiqueta, Carregando, Vazio } from "@/components/animais/ui"
 import { formatarDataHora } from "@/lib/utils"
 
 export default function PaginaDashboard() {
+  const liberado = useApenasAdmin()
   const { t } = useIdioma()
+
   const { dados: stats, carregando: carregandoStats } = useConsulta(buscarEstatisticas)
 
   const { dados: animais, carregando: carregandoAnimais } = useConsulta(() =>
@@ -20,6 +23,8 @@ export default function PaginaDashboard() {
     buscarSolicitacoes()
   )
   const pendentes = (solicitacoes?.dados ?? []).filter((s) => s.status === "pendente")
+
+  if (!liberado) return null
 
   return (
     <Layout>
