@@ -1,192 +1,276 @@
-[🇧🇷 Português](./README.md) · [🇺🇸 English](./README.en.md)
+# 🐾 Animal Adoption Project
 
-# 🐾 Animal Adoption
+A web application developed to support the animal adoption process, allowing the management of users, animals available for adoption, adoption requests, and completed adoptions.
 
-> A web platform to connect animals available for adoption with their future owners.
+## 📋 About the Project
 
----
+The Animal Adoption Project aims to connect people interested in adopting pets with animals looking for a new home.
 
-## 🎯 The Problem We Solve
+The application is composed of:
 
-Many animals wait for adoption in shelters without enough visibility. This platform centralizes the registration of available animals, facilitates contact between shelters and adopters, and tracks the entire adoption process transparently.
-
----
-
-## ✨ Features
-
-- User registration, login and password recovery
-- User profile management
-- Animal registration, editing and deletion
-- Animal photo upload
-- Listing, search and filtering of available animals
-- Adoption requests and status tracking
-- Approval and rejection of adoption requests
-- Animal status updates (available, in process, adopted)
-- Favorite animals
-- Adoption history
-- Admin panel with dashboard and statistics
-- Report generation and PDF export
-- Role-based access control (administrator and adopter)
-- Notifications about adoption requests
-- System activity logs
+- Frontend built with Next.js
+- Backend built with Node.js and Express
+- PostgreSQL database
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Features
 
-- **Backend:** Node.js + Express
-- **Frontend:** React + Vite
-- **Database:** PostgreSQL
-- **Authentication:** JWT
-- **File upload:** Multer
-- **Email:** Nodemailer
+### Users
+
+- User registration
+- User listing and search
+- User information updates
+- Address management
+
+### Animals
+
+- Animal registration
+- Animal listing and search
+- Animal information updates
+- Animal status management
+
+Available statuses:
+
+- AVAILABLE
+- IN_PROCESS
+- ADOPTED
+
+### Adoption Requests
+
+- Create adoption requests
+- View adoption requests
+- Approve or reject requests
+- Automatic animal status updates
+
+### Adoptions
+
+- Register completed adoptions
+- View adoption history
+- Link adopted animals to adopters
+
+---
+
+## 🏗 Architecture
+
+```text
+Frontend (Next.js)
+        │
+        ▼
+Backend (Node.js + Express)
+        │
+        ▼
+PostgreSQL
+```
+
+---
+
+## 🛠 Technologies Used
+
+### Frontend
+
+- Next.js 14
+- React 18
+- TypeScript
+- NextAuth
+- Tailwind CSS
+
+### Backend
+
+- Node.js
+- Express
+- PostgreSQL
+- bcrypt
+- cors
+- dotenv
+
+### Database
+
+- PostgreSQL
 
 ---
 
 ## 📁 Project Structure
 
-```
-adocao-animais/
-├── .env.example
-├── .gitignore
-├── package.json
-├── README.md
-├── README.en.md
+```text
+Animal-Adoption-Project/
+│
 ├── backend/
 │   ├── migrations/
-│   │   └── 001_create_tables.sql  # All table definitions
 │   ├── scripts/
-│   │   └── migrate.js             # Migration runner
 │   └── src/
-│       ├── server.js
 │       ├── routes/
-│       ├── controllers/
-│       ├── middlewares/
-│       └── db/
+│       ├── db.js
+│       └── server.js
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   └── package.json
+│
 ├── database/
-│   └── seed.sql                   # Test data
-└── frontend/
-    └── src/
-        ├── main.jsx
-        ├── App.jsx
-        ├── pages/
-        ├── components/
-        ├── services/
-        └── hooks/
+│   ├── Insert_test_records.sql
+│   ├── validations.sql
+│   └── localhost.session.sql
+│
+└── README.md
 ```
 
 ---
 
-## 🗄 Database Tables
+## 🗄 Database
 
-| Table | Description |
-|-------|-------------|
-| `usuarios` | User accounts (adopters and administrators) |
-| `enderecos` | Addresses linked to users |
-| `animais` | Animals available for adoption |
-| `fotos_animais` | Animal photos |
-| `solicitacoes` | Adoption requests |
-| `adocoes` | Completed adoption history |
-| `favoritos` | Animals favorited by users |
+The system uses PostgreSQL as its database management system.
+
+Main entities:
+
+### users
+
+Stores registered user information.
+
+### addresses
+
+Stores addresses linked to users.
+
+### animals
+
+Stores animals available for adoption.
+
+### requests
+
+Stores adoption requests submitted by users.
+
+### adoptions
+
+Stores records of completed adoptions.
 
 ---
 
-## 🚀 Running Locally
+## ⚙️ Environment Configuration
 
-### Prerequisites
+Create a `.env` file based on your project requirements.
 
-- [Node.js](https://nodejs.org/) v18 or higher
-- [PostgreSQL](https://www.postgresql.org/) v14 or higher
+Example:
 
-### 1. Clone the repository
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=animal_adoption_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+```
+
+---
+
+## ▶️ Running the Backend
+
+Navigate to the backend folder:
 
 ```bash
-git clone https://github.com/your-username/adocao-animais.git
-cd adocao-animais
+cd backend
 ```
 
-### 2. Install dependencies
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-### 3. Set up environment variables
-
-```bash
-cp .env.example .env
-```
-
-Open the `.env` file and fill in your local settings:
-
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=adocao_db
-DB_USER=postgres
-DB_PASSWORD=your_password_here
-JWT_SECRET=a_long_secret_key
-```
-
-### 4. Create the database
-
-Access PostgreSQL and create the database:
-
-```bash
-psql -U postgres
-```
-
-```sql
-CREATE DATABASE adocao_db;
-\q
-```
-
-### 5. Run the migrations
-
-```bash
-npm run db:migrate
-```
-
-If everything is set up correctly, you should see:
-
-```
-✅ Connected to the database.
-✅ Executed: 001_create_tables.sql
-🎉 Migrations complete!
-```
-
-### 6. (Optional) Seed with test data
-
-```bash
-psql -U postgres -d adocao_db -f database/seed.sql
-```
-
-This inserts sample users, animals, requests and favorites to speed up development.
-
-### 7. Start the server
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-The API will be available at `http://localhost:3000`.
+The backend will be available at:
+
+```text
+http://localhost:3005
+```
 
 ---
 
-## 🌐 Deploy
+## ▶️ Running the Frontend
 
-> Coming soon.
+Navigate to the frontend folder:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the application:
+
+```bash
+npm run dev
+```
+
+The frontend will be available at:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## 👥 Team
+## 📡 API Endpoints
 
-| Name | GitHub |
-|------|--------|
-| Member 1 | [@username1](https://github.com/username1) |
-| Member 2 | [@username2](https://github.com/username2) |
-| Member 3 | [@username3](https://github.com/username3) |
-| Member 4 | [@username4](https://github.com/username4) |
+### Users
+
+| Method | Endpoint |
+|----------|----------|
+| GET | /api/users |
+| GET | /api/users/:id |
+| POST | /api/users |
+| PUT | /api/users/:id |
+
+### Animals
+
+| Method | Endpoint |
+|----------|----------|
+| GET | /api/animals |
+| GET | /api/animals/:id |
+| POST | /api/animals |
+| PUT | /api/animals/:id |
+
+### Adoption Requests
+
+| Method | Endpoint |
+|----------|----------|
+| GET | /api/requests |
+| GET | /api/requests/:user_id |
+| POST | /api/requests |
+| PUT | /api/requests/:id |
+
+### Adoptions
+
+| Method | Endpoint |
+|----------|----------|
+| GET | /api/adoptions |
+| GET | /api/adoptions/:id |
+| POST | /api/adoptions |
+| PUT | /api/adoptions/:id |
+
+---
+
+## 👨‍💻 Team
+
+- Ana Carolina
+- Giovanni Pinheiro
+- Hellen Atanasio
+- Livia Caroline
+- Marcus Vinicius
+- Victoria Lungov
+- Vitoria Pereira
+- Yohann Mazario
 
 ---
 

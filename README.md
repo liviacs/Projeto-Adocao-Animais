@@ -1,195 +1,279 @@
-[🇧🇷 Português](./README.md) · [🇺🇸 English](./README.en.md)
+# 🐾 Projeto Adoção de Animais
 
-# 🐾 Adoção de Animais
+Sistema web desenvolvido para auxiliar o processo de adoção de animais, permitindo o gerenciamento de usuários, animais disponíveis, solicitações de adoção e adoções concluídas.
 
-> Plataforma web para conectar animais disponíveis para adoção com seus futuros tutores.
+## 📋 Sobre o Projeto
 
----
+O Projeto Adoção de Animais tem como objetivo facilitar a conexão entre pessoas interessadas em adotar e animais que aguardam um novo lar.
 
-## 🎯 O Problema que Resolvemos
+A aplicação é composta por:
 
-Muitos animais aguardam adoção em abrigos sem visibilidade suficiente. Esta plataforma centraliza o cadastro de animais disponíveis, facilita o contato entre abrigos e adotantes e acompanha todo o processo de adoção de forma transparente.
-
----
-
-## ✨ Funcionalidades
-
-- Cadastro, login e recuperação de senha
-- Gerenciamento de perfil do usuário
-- Cadastro, edição e exclusão de animais
-- Upload de fotos dos animais
-- Listagem, busca e filtros de animais disponíveis
-- Solicitação e acompanhamento de adoções
-- Aprovação e rejeição de solicitações
-- Atualização de status do animal (disponível, em processo, adotado)
-- Favoritar animais
-- Histórico de adoções
-- Painel administrativo com dashboard e estatísticas
-- Geração e exportação de relatórios em PDF
-- Controle de permissões (administrador e adotante)
-- Notificações sobre solicitações de adoção
-- Registro de atividades do sistema (logs)
+- Frontend desenvolvido com Next.js
+- Backend desenvolvido com Node.js e Express
+- Banco de dados PostgreSQL
 
 ---
 
-## 🛠 Stack Tecnológica
+## 🚀 Funcionalidades
 
-- **Backend:** Node.js + Express
-- **Frontend:** React + Vite
-- **Banco de dados:** PostgreSQL
-- **Autenticação:** JWT
-- **Upload de arquivos:** Multer
-- **E-mail:** Nodemailer
+### Usuários
+
+- Cadastro de usuários
+- Consulta de usuários
+- Atualização de usuários
+- Gerenciamento de endereços
+
+### Animais
+
+- Cadastro de animais
+- Consulta de animais cadastrados
+- Atualização de informações
+- Controle de status do animal
+
+Status disponíveis:
+
+- DISPONIVEL
+- EM_PROCESSAMENTO
+- ADOTADO
+
+### Solicitações de Adoção
+
+- Criação de solicitações
+- Consulta de solicitações
+- Aprovação ou reprovação de solicitações
+- Atualização automática do status do animal
+
+### Adoções
+
+- Registro de adoções realizadas
+- Consulta de histórico de adoções
+- Associação entre animal e adotante
+
+---
+
+## 🏗 Arquitetura
+
+```text
+Frontend (Next.js)
+        │
+        ▼
+Backend (Node.js + Express)
+        │
+        ▼
+PostgreSQL
+```
+
+---
+
+## 🛠 Tecnologias Utilizadas
+
+### Frontend
+
+- Next.js 14
+- React 18
+- TypeScript
+- NextAuth
+- Tailwind CSS
+
+### Backend
+
+- Node.js
+- Express
+- PostgreSQL
+- bcrypt
+- cors
+- dotenv
+
+### Banco de Dados
+
+- PostgreSQL
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-```
-adocao-animais/
-├── .env.example
-├── .gitignore
-├── package.json
-├── README.md
-├── README.en.md
+```text
+Projeto-Adocao-Animais/
+│
 ├── backend/
 │   ├── migrations/
-│   │   └── 001_create_tables.sql  # Criação de todas as tabelas
 │   ├── scripts/
-│   │   └── migrate.js             # Script de migração
 │   └── src/
-│       ├── server.js
 │       ├── routes/
-│       ├── controllers/
-│       ├── middlewares/
-│       └── db/
+│       ├── db.js
+│       └── server.js
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   └── package.json
+│
 ├── database/
-│   └── seed.sql                   # Dados de teste
-└── frontend/
-    └── src/
-        ├── main.jsx
-        ├── App.jsx
-        ├── pages/
-        ├── components/
-        ├── services/
-        └── hooks/
+│   ├── Inserir_registros_teste.sql
+│   ├── validacoes.sql
+│   └── localhost.session.sql
+│
+└── README.md
 ```
 
 ---
 
-## 🗄 Tabelas do Banco de Dados
+## 🗄 Banco de Dados
 
-| Tabela | Descrição |
-|--------|-----------|
-| `usuarios` | Cadastro de usuários (adotantes e administradores) |
-| `enderecos` | Endereços vinculados aos usuários |
-| `animais` | Animais disponíveis para adoção |
-| `fotos_animais` | Fotos dos animais |
-| `solicitacoes` | Solicitações de adoção |
-| `adocoes` | Histórico de adoções concluídas |
-| `favoritos` | Animais favoritados pelos usuários |
+O sistema utiliza PostgreSQL.
+
+Principais entidades:
+
+### usuarios
+
+Armazena informações dos usuários cadastrados.
+
+### enderecos
+
+Endereços vinculados aos usuários.
+
+### animais
+
+Animais disponíveis para adoção.
+
+### solicitacoes
+
+Solicitações realizadas pelos usuários.
+
+### adocoes
+
+Registros de adoções concluídas.
 
 ---
 
-## 🚀 Executar Localmente
+## ⚙️ Configuração do Ambiente
 
-### Pré-requisitos
+Crie um arquivo `.env` baseado em `.env.example`.
 
-- [Node.js](https://nodejs.org/) v18 ou superior
-- [PostgreSQL](https://www.postgresql.org/) v14 ou superior
+Exemplo:
 
-### 1. Clone o repositório
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=adocao_db
+DB_USER=postgres
+DB_PASSWORD=sua_senha
+```
+
+---
+
+## ▶️ Executando o Backend
+
+Acesse a pasta:
 
 ```bash
-git clone https://github.com/seu-usuario/adocao-animais.git
-cd adocao-animais
+cd backend
 ```
 
-### 2. Instale as dependências
+Instale as dependências:
 
 ```bash
 npm install
 ```
 
-### 3. Configure as variáveis de ambiente
-
-```bash
-cp .env.example .env
-```
-
-Abra o arquivo `.env` e preencha com seus dados locais:
-
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=adocao_db
-DB_USER=postgres
-DB_PASSWORD=sua_senha_aqui
-JWT_SECRET=uma_chave_secreta_longa
-```
-
-### 4. Crie o banco de dados
-
-Acesse o PostgreSQL e crie o banco:
-
-```bash
-psql -U postgres
-```
-
-```sql
-CREATE DATABASE adocao_db;
-\q
-```
-
-### 5. Execute as migrations
-
-```bash
-npm run db:migrate
-```
-
-Se tudo estiver correto, você verá:
-
-```
-✅ Conectado ao banco de dados.
-✅ Executada: 001_create_tables.sql
-🎉 Migrations concluídas!
-```
-
-### 6. (Opcional) Populando com dados de teste
-
-```bash
-psql -U postgres -d adocao_db -f database/seed.sql
-```
-
-Isso insere usuários, animais, solicitações e favoritos de exemplo para facilitar o desenvolvimento.
-
-### 7. Inicie o servidor
+Inicie o servidor:
 
 ```bash
 npm run dev
 ```
 
-A API estará disponível em `http://localhost:3000`.
+O backend será iniciado em:
+
+```text
+http://localhost:3005
+```
 
 ---
 
-## 🌐 Deploy
+## ▶️ Executando o Frontend
 
-> Em breve.
+Acesse a pasta:
+
+```bash
+cd frontend
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Execute:
+
+```bash
+npm run dev
+```
+
+A aplicação ficará disponível em:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## 👥 Equipe
+## 📡 Endpoints da API
 
-| Nome | GitHub |
-|------|--------|
-| Membro 1 | [@usuario1](https://github.com/usuario1) |
-| Membro 2 | [@usuario2](https://github.com/usuario2) |
-| Membro 3 | [@usuario3](https://github.com/usuario3) |
-| Membro 4 | [@usuario4](https://github.com/usuario4) |
+### Usuários
+
+| Método | Endpoint |
+|----------|----------|
+| GET | /api/usuarios |
+| GET | /api/usuarios/:id |
+| POST | /api/usuarios |
+| PUT | /api/usuarios/:id |
+
+### Animais
+
+| Método | Endpoint |
+|----------|----------|
+| GET | /api/animais |
+| GET | /api/animais/:id |
+| POST | /api/animais |
+| PUT | /api/animais/:id |
+
+### Solicitações
+
+| Método | Endpoint |
+|----------|----------|
+| GET | /api/solicitacoes |
+| GET | /api/solicitacoes/:id_usuario |
+| POST | /api/solicitacoes |
+| PUT | /api/solicitacoes/:id |
+
+### Adoções
+
+| Método | Endpoint |
+|----------|----------|
+| GET | /api/adocoes |
+| GET | /api/adocoes/:id |
+| POST | /api/adocoes |
+| PUT | /api/adocoes/:id |
+
+---
+
+## 👨‍💻 Equipe
+
+- Ana Carolina
+- Giovanni Pinheiro
+- Hellen Atanasio
+- Livia Caroline
+- Marcus Ladeia
+- Victoria Lungov
+- Vitoria Pereira
+- Yohann Mazario
 
 ---
 
 ## 📄 Licença
 
-Este projeto foi desenvolvido para fins acadêmicos.
+Projeto desenvolvido para fins acadêmicos.
