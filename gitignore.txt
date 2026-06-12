@@ -1,0 +1,103 @@
+# ======================
+# Dependências
+# ======================
+node_modules/
+.pnp
+.pnp.js
+
+# ======================
+# Variáveis de ambiente
+# ======================
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# ======================
+# Build do frontend (React)
+# ======================
+dist/
+build/
+out/
+
+# ======================
+# Uploads e arquivos de mídia
+# ======================
+uploads/
+public/uploads/
+storage/
+
+# ======================
+# Logs
+# ======================
+logs/
+!frontend/app/logs/
+!frontend/app/logs/**
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ======================
+# Relatórios gerados (PDF)
+# ======================
+reports/
+*.pdf
+
+# ======================
+# Banco de dados local
+# ======================
+*.sql.dump
+*.dump
+*.sqlite
+*.db
+
+# ======================
+# Cache e temporários
+# ======================
+.cache/
+.parcel-cache/
+.turbo/
+.next/
+tmp/
+temp/
+
+# ======================
+# Testes e cobertura
+# ======================
+coverage/
+.nyc_output/
+
+# ======================
+# IDEs e editores
+# ======================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ======================
+# Sistema operacional
+# ======================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ======================
+# Docker (se aplicável)
+# ======================
+.dockerenv
+
+# ======================
+# Misc
+# ======================
+*.pem
+*.key
+*.cert
+database/backup_antes_reset.sql
+database/backup*.sql
